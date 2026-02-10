@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.IO;
 
 namespace QuizApp.Models;
 
@@ -16,11 +18,31 @@ public class Topic
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
-    /// Имя txt-файла в папке tests (без пути).
+    /// Относительный путь к txt-файлу от папки tests (включая подпапки), например "География\Урок 5\test.txt".
     /// </summary>
     public string FileName { get; set; } = string.Empty;
 
     public TopicType Type { get; set; }
+
+    /// <summary>
+    /// Путь для отображения: категории и название теста, например "География / Урок 5 / test".
+    /// </summary>
+    [NotMapped]
+    public string DisplayPath
+    {
+        get
+        {
+            var dir = Path.GetDirectoryName(FileName);
+            if (string.IsNullOrEmpty(dir)) return Title;
+            return dir.Replace("\\", " / ") + " / " + Title;
+        }
+    }
+
+    /// <summary>
+    /// Путь папки (категории) без имени файла, для группировки в дереве.
+    /// </summary>
+    [NotMapped]
+    public string FolderPath => Path.GetDirectoryName(FileName) ?? string.Empty;
 
     /// <summary>
     /// Разрешена ли тема для прохождения обычным пользователям.

@@ -60,22 +60,27 @@ public class TestFileService : ITestFileService
             return;
         }
 
-        var files = Directory.GetFiles(_testsFolder, "*.txt");
+        // Рекурсивно обходим папку tests и все подпапки (категории)
+        var files = Directory.GetFiles(_testsFolder, "*.txt", SearchOption.AllDirectories);
         foreach (var file in files)
         {
-            var fileName = Path.GetFileName(file);
+            // Относительный путь от папки tests (например "География\Урок 5\test.txt")
+            var relativePath = Path.GetRelativePath(_testsFolder, file);
+            if (Path.DirectorySeparatorChar != '\\')
+                relativePath = relativePath.Replace(Path.DirectorySeparatorChar, '\\');
+
             try
             {
                 var (type, _) = ParseFile(file);
 
-                var existing = _db.Topics.SingleOrDefault(t => t.FileName == fileName);
+                var existing = _db.Topics.SingleOrDefault(t => t.FileName == relativePath);
                 if (existing == null)
                 {
-                    var title = Path.GetFileNameWithoutExtension(fileName);
+                    var title = Path.GetFileNameWithoutExtension(relativePath);
                     var topic = new Topic
                     {
                         Title = title,
-                        FileName = fileName,
+                        FileName = relativePath,
                         Type = type,
                         IsEnabled = false // по умолчанию выключено, админ включает
                     };
@@ -83,13 +88,13 @@ public class TestFileService : ITestFileService
                 }
                 else
                 {
-                    // Обновим тип на случай, если он поменялся в файле
+                    existing.Title = Path.GetFileNameWithoutExtension(relativePath);
                     existing.Type = type;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка разбора файла теста {FileName}", fileName);
+                _logger.LogError(ex, "Ошибка разбора файла теста {FileName}", relativePath);
             }
         }
 
@@ -98,7 +103,8 @@ public class TestFileService : ITestFileService
 
     public IReadOnlyList<QuestionModel> LoadQuestionsForTopic(Topic topic)
     {
-        var path = Path.Combine(_testsFolder, topic.FileName);
+        // FileName хранит относительный путь (в т.ч. с подпапками)
+        var path = Path.Combine(_testsFolder, topic.FileName.Replace('\\', Path.DirectorySeparatorChar));
         var (_, questions) = ParseFile(path);
         return questions;
     }

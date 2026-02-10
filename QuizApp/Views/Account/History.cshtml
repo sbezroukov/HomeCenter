@@ -29,7 +29,7 @@ else
             <tr>
                 <td>@a.StartedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                 <td>@a.User.UserName</td>
-                <td>@a.Topic.Title</td>
+                <td>@a.Topic.DisplayPath</td>
                 <td>@a.Topic.Type</td>
                 <td>
                     @if (a.ScorePercent.HasValue)

@@ -29,10 +29,10 @@ public class TestController : Controller
 
         var topics = await _db.Topics
             .Where(t => t.IsEnabled)
-            .OrderBy(t => t.Title)
             .ToListAsync();
 
-        return View(topics);
+        var tree = TestTreeNode.BuildTree(topics);
+        return View(tree);
     }
 
     public async Task<IActionResult> Take(int id)

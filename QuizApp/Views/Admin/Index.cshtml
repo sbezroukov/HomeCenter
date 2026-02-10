@@ -26,7 +26,7 @@
     @foreach (var t in Model)
     {
         <tr>
-            <td>@t.Title</td>
+            <td>@t.DisplayPath</td>
             <td>@t.FileName</td>
             <td>@t.Type</td>
             <td>@(t.IsEnabled ? "Да" : "Нет")</td>

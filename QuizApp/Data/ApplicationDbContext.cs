@@ -40,7 +40,7 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Topic>()
             .Property(t => t.FileName)
-            .HasMaxLength(200);
+            .HasMaxLength(500);
     }
 }
 

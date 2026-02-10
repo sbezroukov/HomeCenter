@@ -1,0 +1,39 @@
+@model (QuizApp.Models.TestTreeNode Node, int Level)
+
+@{
+    var (node, level) = Model;
+    if (node.Topics.Count == 0 && node.Children.Count == 0) { return; }
+}
+
+@if (level > 0)
+{
+    <div class="test-category mb-3" style="margin-left: @(level * 1.25)rem;">
+        <h5 class="text-muted border-bottom pb-1 mb-2">@node.Name</h5>
+    </div>
+}
+
+@if (node.Topics.Count > 0)
+{
+    var marginLeft = level > 0 ? (level * 1.25) + 0.5 : 0;
+    <div class="list-group mb-3" style="@(marginLeft > 0 ? $"margin-left: {marginLeft}rem;" : "")">
+        @foreach (var t in node.Topics)
+        {
+            <a class="list-group-item list-group-item-action"
+               asp-action="Take" asp-route-id="@t.Id">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@t.Title</h5>
+                    <small>@t.Type</small>
+                </div>
+                @if (!string.IsNullOrEmpty(t.FolderPath))
+                {
+                    <small class="text-muted">@t.DisplayPath</small>
+                }
+            </a>
+        }
+    </div>
+}
+
+@foreach (var child in node.Children)
+{
+    await Html.RenderPartialAsync("_TestTreeLevel", (child, level + 1));
+}

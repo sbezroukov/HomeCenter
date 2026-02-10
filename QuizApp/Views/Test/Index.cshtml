@@ -1,4 +1,4 @@
-@model IEnumerable<QuizApp.Models.Topic>
+@model QuizApp.Models.TestTreeNode
 
 @{
     ViewData["Title"] = "Доступные темы";
@@ -6,24 +6,11 @@
 
 <h2>Доступные темы</h2>
 
-@if (!Model.Any())
+@if (Model.Topics.Count == 0 && Model.Children.Count == 0)
 {
     <p>Пока нет доступных тем. Обратитесь к администратору.</p>
 }
 else
 {
-    <div class="list-group">
-        @foreach (var t in Model)
-        {
-            <a class="list-group-item list-group-item-action"
-               asp-action="Take" asp-route-id="@t.Id">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">@t.Title</h5>
-                    <small>@t.Type</small>
-                </div>
-                <small>Файл: @t.FileName</small>
-            </a>
-        }
-    </div>
+    await Html.RenderPartialAsync("_TestTreeLevel", (Model, 0));
 }
-
