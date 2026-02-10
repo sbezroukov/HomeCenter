@@ -1,0 +1,120 @@
+@model QuizApp.Models.TestAttempt
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Результат";
+    var details = ViewBag.Details as System.Collections.IEnumerable;
+}
+
+<h2>Результат по теме "@Model.Topic.Title"</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p class="mb-1"><strong>Пользователь:</strong> @Model.User.UserName</p>
+        <p class="mb-1"><strong>Дата прохождения:</strong> @Model.StartedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+        <p class="mb-1"><strong>Тип теста:</strong> @Model.Topic.Type</p>
+        <p class="mb-1"><strong>Всего вопросов:</strong> @Model.TotalQuestions</p>
+        @if (Model.ScorePercent.HasValue)
+        {
+            <p class="mb-0">
+                <strong>Результат:</strong> 
+                <span class="badge @(Model.ScorePercent >= 70 ? "bg-success" : Model.ScorePercent >= 50 ? "bg-warning" : "bg-danger")">
+                    @($"{Model.ScorePercent:F2} %")
+                </span>
+                (@Model.CorrectAnswers из @Model.TotalQuestions правильных)
+            </p>
+        }
+        else
+        {
+            <p class="mb-0"><strong>Результат:</strong> без автоматической оценки</p>
+        }
+    </div>
+</div>
+
+@if (details != null && details.Cast<object>().Any())
+{
+    <h3>Детали ответов</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th style="width: 5%">№</th>
+                <th style="width: 35%">Вопрос</th>
+                @if (Model.Topic.Type == QuizApp.Models.TopicType.Test)
+                {
+                    <th style="width: 25%">Ваш ответ</th>
+                    <th style="width: 25%">Правильный ответ</th>
+                    <th style="width: 10%">Статус</th>
+                }
+                else if (Model.Topic.Type == QuizApp.Models.TopicType.Open)
+                {
+                    <th style="width: 55%">Ваш ответ</th>
+                }
+                else
+                {
+                    <th style="width: 55%">Примечание</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int questionNum = 1;
+                foreach (var detail in details.Cast<object>())
+                {
+                    var jsonElement = detail as System.Text.Json.JsonElement?;
+                    if (jsonElement == null) continue;
+                    
+                    var elem = jsonElement.Value;
+                    <tr>
+                        <td>@questionNum</td>
+                        <td>@elem.GetProperty("Question").GetString()</td>
+                        
+                        @if (Model.Topic.Type == QuizApp.Models.TopicType.Test)
+                        {
+                            var selected = elem.TryGetProperty("Selected", out var sel) ? sel.GetString() : "Не выбран";
+                            var correct = elem.TryGetProperty("Correct", out var cor) ? cor.GetString() : "Не указан";
+                            var isCorrect = elem.TryGetProperty("IsCorrect", out var isCor) && isCor.GetBoolean();
+                            
+                            <td>@selected</td>
+                            <td>@correct</td>
+                            <td>
+                                @if (isCorrect)
+                                {
+                                    <span class="badge bg-success">✓ Правильно</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">✗ Неправильно</span>
+                                }
+                            </td>
+                        }
+                        else if (Model.Topic.Type == QuizApp.Models.TopicType.Open)
+                        {
+                            var answer = elem.TryGetProperty("Answer", out var ans) ? ans.GetString() : "Нет ответа";
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(answer))
+                                {
+                                    <em class="text-muted">Ответ не предоставлен</em>
+                                }
+                                else
+                                {
+                                    <div style="white-space: pre-wrap;">@answer</div>
+                                }
+                            </td>
+                        }
+                        else
+                        {
+                            <td><em class="text-muted">Вопрос для самопроверки</em></td>
+                        }
+                    </tr>
+                    questionNum++;
+                }
+            }
+        </tbody>
+    </table>
+}
+
+<p>
+    <a class="btn btn-primary" asp-controller="Account" asp-action="History">К истории</a>
+    <a class="btn btn-secondary" asp-action="Index">К списку тестов</a>
+</p>
+

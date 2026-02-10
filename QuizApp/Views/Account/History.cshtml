@@ -1,0 +1,55 @@
+@model IEnumerable<QuizApp.Models.TestAttempt>
+
+@{
+    ViewData["Title"] = "История прохождения";
+}
+
+<h2>История прохождения</h2>
+
+@if (!Model.Any())
+{
+    <p>Вы еще не проходили тесты.</p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Пользователь</th>
+            <th>Тема</th>
+            <th>Тип</th>
+            <th>Результат</th>
+            <th>Действия</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.StartedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@a.User.UserName</td>
+                <td>@a.Topic.Title</td>
+                <td>@a.Topic.Type</td>
+                <td>
+                    @if (a.ScorePercent.HasValue)
+                    {
+                        <span class="badge @(a.ScorePercent >= 70 ? "bg-success" : a.ScorePercent >= 50 ? "bg-warning" : "bg-danger")">
+                            @($"{a.ScorePercent:F2} %")
+                        </span>
+                        <small>(@a.CorrectAnswers из @a.TotalQuestions правильных)</small>
+                    }
+                    else
+                    {
+                        <span class="text-muted">без оценки</span>
+                    }
+                </td>
+                <td>
+                    <a asp-controller="Test" asp-action="Result" asp-route-id="@a.Id" class="btn btn-sm btn-outline-primary">Подробнее</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+

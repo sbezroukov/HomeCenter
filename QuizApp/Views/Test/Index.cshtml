@@ -1,0 +1,29 @@
+@model IEnumerable<QuizApp.Models.Topic>
+
+@{
+    ViewData["Title"] = "Доступные темы";
+}
+
+<h2>Доступные темы</h2>
+
+@if (!Model.Any())
+{
+    <p>Пока нет доступных тем. Обратитесь к администратору.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var t in Model)
+        {
+            <a class="list-group-item list-group-item-action"
+               asp-action="Take" asp-route-id="@t.Id">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@t.Title</h5>
+                    <small>@t.Type</small>
+                </div>
+                <small>Файл: @t.FileName</small>
+            </a>
+        }
+    </div>
+}
+

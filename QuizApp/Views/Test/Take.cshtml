@@ -1,0 +1,56 @@
+@model (QuizApp.Models.Topic topic, System.Collections.Generic.List<QuizApp.Models.QuestionModel> questions)
+
+@{
+    ViewData["Title"] = "Прохождение: " + Model.topic.Title;
+}
+
+<h2>@Model.topic.Title (@Model.topic.Type)</h2>
+
+@if (!Model.questions.Any())
+{
+    <p>В этой теме пока нет вопросов.</p>
+}
+else
+{
+    <form asp-action="Take" method="post">
+        <input type="hidden" name="id" value="@Model.topic.Id" />
+        @for (int i = 0; i < Model.questions.Count; i++)
+        {
+            var q = Model.questions[i];
+            <div class="mb-3">
+                <h5>@(i + 1). @q.Text</h5>
+
+                @if (Model.topic.Type == QuizApp.Models.TopicType.Test)
+                {
+                    for (int j = 0; j < q.Options.Count; j++)
+                    {
+                        var name = $"q{i}";
+                        var id = $"q{i}-{j}";
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="radio"
+                                   name="@name"
+                                   id="@id"
+                                   value="@j" />
+                            <label class="form-check-label" for="@id">
+                                @q.Options[j].Text
+                            </label>
+                        </div>
+                    }
+                }
+                else if (Model.topic.Type == QuizApp.Models.TopicType.Open)
+                {
+                    var name = $"q{i}";
+                    <textarea class="form-control" name="@name" rows="3"></textarea>
+                }
+                else
+                {
+                    <p><em>Вопрос для самопроверки. Обдумайте ответ самостоятельно.</em></p>
+                }
+            </div>
+        }
+
+        <button type="submit" class="btn btn-success">Завершить</button>
+    </form>
+}
+

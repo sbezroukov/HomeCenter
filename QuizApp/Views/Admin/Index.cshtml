@@ -1,0 +1,74 @@
+@model IEnumerable<QuizApp.Models.Topic>
+
+@{
+    ViewData["Title"] = "Админка";
+}
+
+<h2>Администрирование тем</h2>
+
+<p>
+    Пользователей: @ViewBag.TotalUsers<br />
+    Попыток прохождения: @ViewBag.TotalAttempts<br />
+    <a asp-action="History" class="btn btn-info btn-sm mt-2">Просмотреть историю всех пользователей</a>
+</p>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Тема</th>
+        <th>Файл</th>
+        <th>Тип</th>
+        <th>Доступна пользователям</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var t in Model)
+    {
+        <tr>
+            <td>@t.Title</td>
+            <td>@t.FileName</td>
+            <td>@t.Type</td>
+            <td>@(t.IsEnabled ? "Да" : "Нет")</td>
+            <td>
+                <form asp-action="ToggleTopic" method="post" class="d-inline">
+                    <input type="hidden" name="id" value="@t.Id" />
+                    <button type="submit" class="btn btn-sm @(t.IsEnabled ? "btn-warning" : "btn-success")">
+                        @(t.IsEnabled ? "Сделать недоступной" : "Сделать доступной")
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h3>Формат файлов в папке tests</h3>
+<pre>
+MODE: Test
+
+Q: Сколько будет 2+2?
+1) 3
+*2) 4
+3) 5
+
+Q: Столица Франции?
+1) Берлин
+2) Мадрид
+*3) Париж
+
+------------------------------
+MODE: Open
+
+Q: Расскажите, что такое инкапсуляция.
+
+Q: Что такое полиморфизм?
+
+------------------------------
+MODE: Self
+
+Q: Опишите алгоритм сортировки вставками.
+
+Q: Перечислите основные структуры данных.
+</pre>
+
