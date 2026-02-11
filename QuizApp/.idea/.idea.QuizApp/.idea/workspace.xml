@@ -10,16 +10,6 @@
   <component name="ChangeListManager">
     <list default="true" id="0876370c-369b-44c8-bb1c-50f65f58b844" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.QuizApp/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.QuizApp/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/AdminController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/AdminController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/SchoolbookController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/SchoolbookController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DOCKER-UPDATE.md" beforeDir="false" afterPath="$PROJECT_DIR$/DOCKER-UPDATE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Models/SchoolbookTreeViewModel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Models/SchoolbookTreeViewModel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Services/TestFileService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Services/TestFileService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Admin/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Admin/Index.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Views/Schoolbook/_SchoolbookFolderContent.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/Views/Schoolbook/_SchoolbookFolderContent.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wwwroot/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/wwwroot/css/site.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +86,7 @@
       <option name="presentableId" value="Default" />
       <updated>1770812374619</updated>
       <workItem from="1770812375759" duration="2609000" />
-      <workItem from="1770815203708" duration="2906000" />
+      <workItem from="1770815203708" duration="3768000" />
     </task>
     <servers />
   </component>

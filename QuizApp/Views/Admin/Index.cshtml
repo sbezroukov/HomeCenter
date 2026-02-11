@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "Админка";
+    ViewData["FullWidth"] = true;
     var treeRoot = ViewBag.TreeRoot as TestTreeNode;
     var currentFolder = ViewBag.CurrentFolderPath as string ?? "";
     var includeSubfolders = ViewBag.IncludeSubfolders as bool? ?? true;
