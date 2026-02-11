@@ -256,12 +256,15 @@ public class AdminController : Controller
         if (created.Count > 0)
             _testFileService.SyncTopicsFromFiles();
 
+        var message = created.Count > 0
+            ? $"Тесты успешно созданы! Создано файлов: {created.Count}"
+            : "Ничего не создано";
         return Json(new
         {
             success = failed.Count == 0,
             created,
             failed,
-            message = created.Count > 0 ? $"Создано файлов: {created.Count}" : "Ничего не создано"
+            message
         });
     }
 
