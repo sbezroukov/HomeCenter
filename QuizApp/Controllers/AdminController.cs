@@ -220,7 +220,8 @@ public class AdminController : Controller
     public IActionResult ParseImportText(string importText)
     {
         var (items, errors) = ParseImportFormat(importText ?? "");
-        return Json(new { items, errors });
+        var itemsDto = items.Select(x => new { path = x.Path, content = x.Content }).ToList();
+        return Json(new { items = itemsDto, errors });
     }
 
     [HttpPost]
