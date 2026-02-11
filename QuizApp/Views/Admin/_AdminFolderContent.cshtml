@@ -1,0 +1,67 @@
+@model IEnumerable<QuizApp.Models.Topic>
+@using QuizApp.Models
+@{
+    var currentFolder = ViewBag.CurrentFolderPath as string ?? "";
+    var includeSubfolders = ViewBag.IncludeSubfolders as bool? ?? true;
+    var folderDisplay = ViewBag.FolderDisplay as string ?? "Все темы";
+}
+<div class="admin-folder-data" data-current-folder="@currentFolder" data-include-subfolders="@(includeSubfolders ? "true" : "false")">
+<h2 class="card-title h5 mb-3">@folderDisplay</h2>
+
+@if (!string.IsNullOrEmpty(currentFolder))
+{
+    <div class="mb-3 d-flex flex-wrap gap-2">
+        <div class="btn-group btn-group-sm">
+            <a href="#" class="btn btn-outline-secondary js-admin-folder-link @(!includeSubfolders ? "active" : "")"
+               data-folder="@currentFolder" data-include-subfolders="false">Только эта папка</a>
+            <a href="#" class="btn btn-outline-secondary js-admin-folder-link @(includeSubfolders ? "active" : "")"
+               data-folder="@currentFolder" data-include-subfolders="true">С подпапками</a>
+        </div>
+        <form asp-action="ToggleFolder" method="post" class="d-inline js-toggle-folder-form">
+            <input type="hidden" name="folderPath" value="@currentFolder" />
+            <input type="hidden" name="includeSubfolders" value="@(includeSubfolders ? "true" : "false")" />
+            <input type="hidden" name="enable" value="true" />
+            <button type="submit" class="btn btn-sm btn-success">Включить все</button>
+        </form>
+        <form asp-action="ToggleFolder" method="post" class="d-inline js-toggle-folder-form">
+            <input type="hidden" name="folderPath" value="@currentFolder" />
+            <input type="hidden" name="includeSubfolders" value="@(includeSubfolders ? "true" : "false")" />
+            <input type="hidden" name="enable" value="false" />
+            <button type="submit" class="btn btn-sm btn-warning">Выключить все</button>
+        </form>
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Тема</th>
+                <th>Файл</th>
+                <th>Тип</th>
+                <th>Доступна пользователям</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var t in Model)
+            {
+                <tr data-topic-id="@t.Id">
+                    <td>@t.DisplayPath</td>
+                    <td>@t.FileName</td>
+                    <td>@t.TypeDisplayName</td>
+                    <td class="js-access-status">@(t.IsEnabled ? "Да" : "Нет")</td>
+                    <td>
+                        <form asp-action="ToggleTopic" method="post" class="d-inline js-toggle-form">
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <button type="submit" class="btn btn-sm @(t.IsEnabled ? "btn-warning" : "btn-success")">
+                                @(t.IsEnabled ? "Сделать недоступной" : "Сделать доступной")
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+</div>

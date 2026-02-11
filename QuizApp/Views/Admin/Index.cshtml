@@ -25,7 +25,8 @@
             <div class="card-body">
                 <h2 class="card-title h5 mb-3">Папки</h2>
                 <div class="mb-2">
-                    <a asp-action="Index" class="text-decoration-none @(string.IsNullOrEmpty(currentFolder) ? "fw-semibold" : "")">Все темы</a>
+                    <a href="#" class="text-decoration-none js-admin-folder-link @(string.IsNullOrEmpty(currentFolder) ? "fw-semibold" : "")"
+                       data-folder="" data-include-subfolders="true">Все темы</a>
                 </div>
                 @if (treeRoot != null)
                 {
@@ -36,65 +37,8 @@
     </div>
     <div class="col-md-8 col-lg-9">
         <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title h5 mb-3">@folderDisplay</h2>
-
-                @if (!string.IsNullOrEmpty(currentFolder))
-                {
-                    <div class="mb-3 d-flex flex-wrap gap-2">
-                        <div class="btn-group btn-group-sm">
-                            <a asp-action="Index" asp-route-folder="@currentFolder" asp-route-includeSubfolders="false"
-                               class="btn btn-outline-secondary @(!includeSubfolders ? "active" : "")">Только эта папка</a>
-                            <a asp-action="Index" asp-route-folder="@currentFolder" asp-route-includeSubfolders="true"
-                               class="btn btn-outline-secondary @(includeSubfolders ? "active" : "")">С подпапками</a>
-                        </div>
-                        <form asp-action="ToggleFolder" method="post" class="d-inline js-toggle-folder-form">
-                            <input type="hidden" name="folderPath" value="@currentFolder" />
-                            <input type="hidden" name="includeSubfolders" value="@(includeSubfolders ? "true" : "false")" />
-                            <input type="hidden" name="enable" value="true" />
-                            <button type="submit" class="btn btn-sm btn-success">Включить все</button>
-                        </form>
-                        <form asp-action="ToggleFolder" method="post" class="d-inline js-toggle-folder-form">
-                            <input type="hidden" name="folderPath" value="@currentFolder" />
-                            <input type="hidden" name="includeSubfolders" value="@(includeSubfolders ? "true" : "false")" />
-                            <input type="hidden" name="enable" value="false" />
-                            <button type="submit" class="btn btn-sm btn-warning">Выключить все</button>
-                        </form>
-                    </div>
-                }
-
-                <div class="table-responsive">
-                <table class="table table-striped">
-    <thead>
-    <tr>
-        <th>Тема</th>
-        <th>Файл</th>
-        <th>Тип</th>
-        <th>Доступна пользователям</th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var t in Model)
-    {
-        <tr data-topic-id="@t.Id">
-            <td>@t.DisplayPath</td>
-            <td>@t.FileName</td>
-            <td>@t.TypeDisplayName</td>
-            <td class="js-access-status">@(t.IsEnabled ? "Да" : "Нет")</td>
-            <td>
-                <form asp-action="ToggleTopic" method="post" class="d-inline js-toggle-form">
-                    <input type="hidden" name="id" value="@t.Id" />
-                    <button type="submit" class="btn btn-sm @(t.IsEnabled ? "btn-warning" : "btn-success")">
-                        @(t.IsEnabled ? "Сделать недоступной" : "Сделать доступной")
-                    </button>
-                </form>
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
-                </div>
+            <div class="card-body" id="admin-folder-content">
+                @await Html.PartialAsync("_AdminFolderContent", Model)
             </div>
         </div>
     </div>
@@ -102,66 +46,80 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.js-toggle-form').forEach(function (form) {
-                form.addEventListener('submit', function (e) {
+        (function () {
+            var baseUrl = '@Url.Action("Folder", "Admin")';
+            var container = document.getElementById('admin-folder-content');
+
+            function loadFolder(folder, includeSubfolders) {
+                if (!container) return;
+                var url = baseUrl + '?folder=' + encodeURIComponent(folder || '') + '&includeSubfolders=' + (includeSubfolders !== false);
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
+                        container.innerHTML = html;
+                        var normFolder = (folder || '').replace(/\\/g, '/');
+                        document.querySelectorAll('.js-admin-folder-link').forEach(function (l) {
+                            l.classList.remove('fw-semibold', 'active');
+                            var lf = (l.getAttribute('data-folder') || '').replace(/\\/g, '/');
+                            if (lf === normFolder) {
+                                l.classList.add('fw-semibold');
+                                if (l.classList.contains('btn')) l.classList.add('active');
+                            }
+                        });
+                    })
+                    .catch(function () { location.reload(); });
+            }
+
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('.js-admin-folder-link');
+                if (link) {
+                    e.preventDefault();
+                    var folder = link.getAttribute('data-folder') || '';
+                    var incl = link.getAttribute('data-include-subfolders') !== 'false';
+                    loadFolder(folder, incl);
+                }
+            });
+
+            document.addEventListener('submit', function (e) {
+                var form = e.target.closest('.js-toggle-form');
+                if (form) {
                     e.preventDefault();
                     var btn = form.querySelector('button[type="submit"]');
                     var row = form.closest('tr');
-                    var statusCell = row.querySelector('.js-access-status');
-
+                    var statusCell = row ? row.querySelector('.js-access-status') : null;
                     btn.disabled = true;
+                    fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (statusCell) {
+                                statusCell.textContent = data.isEnabled ? 'Да' : 'Нет';
+                                btn.textContent = data.isEnabled ? 'Сделать недоступной' : 'Сделать доступной';
+                                btn.className = 'btn btn-sm ' + (data.isEnabled ? 'btn-warning' : 'btn-success');
+                            }
+                        })
+                        .catch(function () { alert('Не удалось изменить доступ.'); })
+                        .finally(function () { btn.disabled = false; });
+                    return;
+                }
 
-                    var formData = new FormData(form);
-
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(function (r) {
-                        if (!r.ok) throw new Error('Ошибка');
-                        return r.json();
-                    })
-                    .then(function (data) {
-                        statusCell.textContent = data.isEnabled ? 'Да' : 'Нет';
-                        btn.textContent = data.isEnabled ? 'Сделать недоступной' : 'Сделать доступной';
-                        btn.className = 'btn btn-sm ' + (data.isEnabled ? 'btn-warning' : 'btn-success');
-                    })
-                    .catch(function () {
-                        alert('Не удалось изменить доступ. Обновите страницу.');
-                    })
-                    .finally(function () {
-                        btn.disabled = false;
-                    });
-                });
-            });
-
-            document.querySelectorAll('.js-toggle-folder-form').forEach(function (form) {
-                form.addEventListener('submit', function (e) {
+                var folderForm = e.target.closest('.js-toggle-folder-form');
+                if (folderForm) {
                     e.preventDefault();
-                    var btn = form.querySelector('button[type="submit"]');
+                    var btn = folderForm.querySelector('button[type="submit"]');
                     btn.disabled = true;
-                    var formData = new FormData(form);
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData,
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(function (r) {
-                        if (!r.ok) throw new Error('Ошибка');
-                        return r.json();
-                    })
-                    .then(function (data) {
-                        location.reload();
-                    })
-                    .catch(function () {
-                        alert('Не удалось изменить доступ.');
-                        btn.disabled = false;
-                    });
-                });
+                    fetch(folderForm.action, { method: 'POST', body: new FormData(folderForm), headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (r) { return r.json(); })
+                        .then(function () {
+                            var data = container.querySelector('.admin-folder-data');
+                            var folder = data ? data.getAttribute('data-current-folder') || '' : '';
+                            var incl = data ? data.getAttribute('data-include-subfolders') !== 'false' : true;
+                            loadFolder(folder, incl);
+                        })
+                        .catch(function () { alert('Не удалось изменить доступ.'); })
+                        .finally(function () { btn.disabled = false; });
+                }
             });
-        });
+        })();
     </script>
 }
 

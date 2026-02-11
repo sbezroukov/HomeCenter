@@ -81,8 +81,23 @@ public class AdminController : Controller
 
     public async Task<IActionResult> Index(string? folder = null, bool? includeSubfolders = null)
     {
-        // Каждый раз при входе в админку перечитываем файлы из папки tests
-        // и синхронизируем список тем.
+        var (topicsInFolder, viewBag) = await BuildAdminIndexData(folder, includeSubfolders);
+        foreach (var (key, value) in viewBag)
+            ViewBag[key] = value;
+        return View(topicsInFolder);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Folder(string? folder = null, bool? includeSubfolders = null)
+    {
+        var (topicsInFolder, viewBag) = await BuildAdminIndexData(folder, includeSubfolders);
+        foreach (var (key, value) in viewBag)
+            ViewBag[key] = value;
+        return PartialView("_AdminFolderContent", topicsInFolder);
+    }
+
+    private async Task<(List<Topic> TopicsInFolder, Dictionary<string, object> ViewBag)> BuildAdminIndexData(string? folder, bool? includeSubfolders)
+    {
         _testFileService.SyncTopicsFromFiles();
 
         var allTopics = await _db.Topics.OrderBy(t => t.Title).ToListAsync();
@@ -104,16 +119,19 @@ public class AdminController : Controller
         var totalUsers = await _db.Users.CountAsync();
         var totalAttempts = await _db.Attempts.CountAsync();
 
-        ViewBag.TotalUsers = totalUsers;
-        ViewBag.TotalAttempts = totalAttempts;
-        ViewBag.TreeRoot = tree;
-        ViewBag.CurrentFolderPath = currentFolderPath ?? string.Empty;
-        ViewBag.IncludeSubfolders = includeSubfolders ?? true;
-        ViewBag.FolderDisplay = string.IsNullOrEmpty(currentFolderPath)
-            ? "Все темы"
-            : string.Join(" / ", currentFolderPath.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries));
+        var viewBag = new Dictionary<string, object>
+        {
+            ["TotalUsers"] = totalUsers,
+            ["TotalAttempts"] = totalAttempts,
+            ["TreeRoot"] = tree,
+            ["CurrentFolderPath"] = currentFolderPath ?? string.Empty,
+            ["IncludeSubfolders"] = includeSubfolders ?? true,
+            ["FolderDisplay"] = string.IsNullOrEmpty(currentFolderPath)
+                ? "Все темы"
+                : string.Join(" / ", currentFolderPath.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
+        };
 
-        return View(topicsInFolder.ToList());
+        return (topicsInFolder.ToList(), viewBag);
     }
 
     [HttpPost]

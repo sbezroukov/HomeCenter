@@ -33,8 +33,8 @@
                     aria-expanded="@(isActive ? "true" : "false")" aria-controls="@folderId">
                 <span class="me-1">▸</span>
             </button>
-            <a class="text-decoration-none @(isActive ? "fw-semibold" : "")"
-               asp-action="Index" asp-route-folder="@routeFolder" asp-route-includeSubfolders="true">
+            <a href="#" class="text-decoration-none js-admin-folder-link @(isActive ? "fw-semibold" : "")"
+               data-folder="@(routeFolder ?? "")" data-include-subfolders="true">
                 @node.Name
             </a>
         </div>
@@ -49,8 +49,8 @@
     }
     else
     {
-        <a class="text-decoration-none @(isActive ? "fw-semibold" : "")"
-           asp-action="Index" asp-route-folder="@routeFolder" asp-route-includeSubfolders="true">
+        <a href="#" class="text-decoration-none js-admin-folder-link @(isActive ? "fw-semibold" : "")"
+           data-folder="@(routeFolder ?? "")" data-include-subfolders="true">
             @node.Name
         </a>
     }
