@@ -41,9 +41,11 @@ public class SchoolbookTreeNode
                    .Replace('/', Path.DirectorySeparatorChar);
     }
 
+    private static readonly string[] AllowedExtensions = { ".pdf", ".doc", ".docx", ".epub", ".djvu", ".fb2", ".txt" };
+
     /// <summary>
     /// Строит дерево по содержимому папки Schoolbook.
-    /// В дерево попадают только файлы *.pdf.
+    /// В дерево попадают файлы учебников: pdf, doc, docx, epub, djvu, fb2, txt.
     /// </summary>
     public static SchoolbookTreeNode BuildFromDirectory(string rootFolder)
     {
@@ -54,9 +56,11 @@ public class SchoolbookTreeNode
             return root;
         }
 
-        // Все PDF-файлы, включая подпапки
-        var allPdfFiles = Directory.GetFiles(rootFolder, "*.pdf", SearchOption.AllDirectories);
-        if (allPdfFiles.Length == 0)
+        // Все файлы учебников (включая подпапки)
+        var allFiles = Directory.GetFiles(rootFolder, "*.*", SearchOption.AllDirectories)
+            .Where(f => AllowedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+            .ToArray();
+        if (allFiles.Length == 0)
         {
             return root;
         }
@@ -64,7 +68,7 @@ public class SchoolbookTreeNode
         // Собираем множество всех папок, в которых есть файлы (и их родителей)
         var pathSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "" };
 
-        foreach (var file in allPdfFiles)
+        foreach (var file in allFiles)
         {
             var relativeFilePath = Path.GetRelativePath(rootFolder, file);
             relativeFilePath = NormalizePath(relativeFilePath);
@@ -120,7 +124,7 @@ public class SchoolbookTreeNode
         }
 
         // Добавляем файлы к соответствующим узлам
-        foreach (var file in allPdfFiles)
+        foreach (var file in allFiles)
         {
             var relativeFilePath = Path.GetRelativePath(rootFolder, file);
             relativeFilePath = NormalizePath(relativeFilePath);

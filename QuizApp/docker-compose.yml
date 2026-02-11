@@ -13,6 +13,7 @@ services:
     volumes:
       - quizdb:/app/data
       - ./tests:/app/tests
+      - ./Schoolbook:/app/Schoolbook
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080

@@ -154,6 +154,10 @@ public class TestFileService : ITestFileService
             if (index >= allLines.Count)
                 break;
 
+            // Для MODE: Open — встретили разделитель "---", выходим из цикла вопросов
+            if (type == TopicType.Open && allLines[index].Trim().StartsWith("---", StringComparison.Ordinal))
+                break;
+
             if (!allLines[index].StartsWith("Q:", StringComparison.OrdinalIgnoreCase))
             {
                 index++;
@@ -222,7 +226,8 @@ public class TestFileService : ITestFileService
                 index++;
                 while (index < allLines.Count && string.IsNullOrWhiteSpace(allLines[index]))
                     index++;
-                if (index < allLines.Count && allLines[index].Trim().StartsWith("Ответы", StringComparison.OrdinalIgnoreCase))
+                var answersLine = index < allLines.Count ? allLines[index].Trim() : "";
+                if (index < allLines.Count && (answersLine.StartsWith("ОТВЕТЫ", StringComparison.Ordinal) || answersLine.StartsWith("Ответы", StringComparison.Ordinal)))
                 {
                     index++;
                     var answersByNum = new Dictionary<int, string>();

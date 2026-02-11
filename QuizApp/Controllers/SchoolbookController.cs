@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.StaticFiles;
 using QuizApp.Models;
 
 namespace QuizApp.Controllers;
@@ -66,7 +67,9 @@ public class SchoolbookController : Controller
         }
 
         var fileName = Path.GetFileName(fullPath);
-        const string contentType = "application/pdf";
+        var provider = new FileExtensionContentTypeProvider();
+        if (!provider.TryGetContentType(fileName, out var contentType))
+            contentType = "application/octet-stream";
 
         return PhysicalFile(fullPath, contentType, fileName);
     }

@@ -14,6 +14,8 @@ FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 COPY tests ./tests
+COPY Schoolbook ./Schoolbook
+COPY TEST-IMPORT-FORMAT.md .
 VOLUME ["/app/data"]
 ENTRYPOINT ["dotnet", "QuizApp.dll"]
 

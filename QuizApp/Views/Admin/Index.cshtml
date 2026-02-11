@@ -18,9 +18,9 @@
     <a asp-action="ImportTests" class="btn btn-outline-secondary btn-sm mt-2">Текстовый редактор тестов</a>
 </p>
 
-<div class="row">
-    <div class="col-md-4 col-lg-3 mb-3">
-        <div class="card shadow-sm">
+<div class="row admin-layout-row">
+    <div class="col-md-4 col-lg-3 mb-3 admin-sidebar-col">
+        <div class="card shadow-sm admin-sidebar-card">
             <div class="card-body">
                 <h2 class="card-title h5 mb-3">Папки</h2>
                 <div class="mb-2">
@@ -62,6 +62,7 @@
                     </div>
                 }
 
+                <div class="table-responsive">
                 <table class="table table-striped">
     <thead>
     <tr>
@@ -92,6 +93,7 @@
     }
     </tbody>
 </table>
+                </div>
             </div>
         </div>
     </div>

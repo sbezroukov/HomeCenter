@@ -205,6 +205,7 @@ public class AdminController : Controller
         return View();
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public IActionResult ImportFormat()
     {

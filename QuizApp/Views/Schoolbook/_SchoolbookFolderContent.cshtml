@@ -12,11 +12,13 @@ else
         @foreach (var file in Model.FilesInFolder)
         {
             var routePath = file.RelativePath.Replace('\\', '/');
+            var ext = System.IO.Path.GetExtension(file.Name);
+            var badge = string.IsNullOrEmpty(ext) ? "Файл" : ext.TrimStart('.').ToUpperInvariant();
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                asp-action="Download"
                asp-route-path="@routePath">
                 <span>@file.Name</span>
-                <span class="badge bg-secondary">PDF</span>
+                <span class="badge bg-secondary">@badge</span>
             </a>
         }
     </div>
