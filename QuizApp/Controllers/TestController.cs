@@ -10,41 +10,163 @@ using QuizApp.Services;
 namespace QuizApp.Controllers;
 
 [Authorize]
-public class TestController : Controller
-{
-    private readonly ApplicationDbContext _db;
-    private readonly ITestFileService _testService;
-
-    public TestController(ApplicationDbContext db, ITestFileService testService)
+    public class TestController : Controller
     {
-        _db = db;
-        _testService = testService;
-    }
+        private readonly ApplicationDbContext _db;
+        private readonly ITestFileService _testService;
 
-    public async Task<IActionResult> Index()
-    {
-        // На всякий случай обновляем список тем из файлов при каждом заходе
-        // на страницу "Тесты", чтобы новые/измененные файлы сразу подтягивались.
-        _testService.SyncTopicsFromFiles();
+        public TestController(ApplicationDbContext db, ITestFileService testService)
+        {
+            _db = db;
+            _testService = testService;
+        }
 
-        var topics = await _db.Topics
-            .Where(t => t.IsEnabled)
-            .ToListAsync();
+        public async Task<IActionResult> Index(string? folder = null)
+        {
+            var vm = await BuildIndexViewModel(folder);
+            return View(vm);
+        }
 
-        var tree = TestTreeNode.BuildTree(topics);
-        return View(tree);
-    }
+        [HttpGet]
+        public async Task<IActionResult> Folder(string? folder = null)
+        {
+            var vm = await BuildIndexViewModel(folder);
+            return PartialView("_TestFolderContent", vm);
+        }
+
+        private async Task<TestIndexViewModel> BuildIndexViewModel(string? folder)
+        {
+            // На всякий случай обновляем список тем из файлов при каждом заходе
+            // на страницу "Тесты", чтобы новые/измененные файлы сразу подтягивались.
+            _testService.SyncTopicsFromFiles();
+
+            // Для дерева слева учитываем все темы (включая отключённые),
+            // чтобы структура папок полностью соответствовала файловой.
+            var allTopics = await _db.Topics.ToListAsync();
+            var enabledTopics = allTopics.Where(t => t.IsEnabled).ToList();
+
+            var tree = TestTreeNode.BuildTree(allTopics);
+
+            // Нормализуем путь папки из query-параметра, чтобы он совпадал с Topic.FolderPath.
+            string currentFolderPath;
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                currentFolderPath = string.Empty;
+            }
+            else
+            {
+                var normalized = folder
+                    .Replace('\\', System.IO.Path.DirectorySeparatorChar)
+                    .Replace('/', System.IO.Path.DirectorySeparatorChar);
+                currentFolderPath = normalized;
+            }
+
+            // Справа показываем только включённые темы.
+            var topicsInFolderQuery = enabledTopics.AsEnumerable();
+
+            if (!string.IsNullOrEmpty(currentFolderPath))
+            {
+                var prefix = currentFolderPath + System.IO.Path.DirectorySeparatorChar;
+                topicsInFolderQuery = topicsInFolderQuery
+                    .Where(t => t.FolderPath == currentFolderPath ||
+                                (!string.IsNullOrEmpty(t.FolderPath) &&
+                                 t.FolderPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
+            }
+
+            var topicsInFolder = topicsInFolderQuery
+                .OrderBy(t => t.Title)
+                .ToList();
+
+            string display;
+            if (string.IsNullOrEmpty(currentFolderPath))
+            {
+                display = "Все тесты";
+            }
+            else
+            {
+                var parts = currentFolderPath
+                    .Split(System.IO.Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
+                display = string.Join(" / ", parts);
+            }
+
+            // Последние результаты текущего пользователя по этим тестам
+            var lastResults = new Dictionary<int, TestLastResult>();
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var userId))
+            {
+                var topicIds = topicsInFolder.Select(t => t.Id).ToList();
+                if (topicIds.Count > 0)
+                {
+                    var lastAttempts = await _db.Attempts
+                        .Where(a => a.UserId == userId && topicIds.Contains(a.TopicId))
+                        .GroupBy(a => a.TopicId)
+                        .Select(g => g
+                            .OrderByDescending(a => a.CompletedAt ?? a.StartedAt)
+                            .First())
+                        .ToListAsync();
+
+                    foreach (var attempt in lastAttempts)
+                    {
+                        lastResults[attempt.TopicId] = new TestLastResult
+                        {
+                            LastCompletedAt = attempt.CompletedAt ?? attempt.StartedAt,
+                            LastScorePercent = attempt.ScorePercent
+                        };
+                    }
+                }
+            }
+
+            return new TestIndexViewModel
+            {
+                TreeRoot = tree,
+                TopicsInFolder = topicsInFolder,
+                CurrentFolderPath = currentFolderPath,
+                CurrentFolderDisplay = display,
+                LastResultsByTopicId = lastResults
+            };
+        }
 
     public async Task<IActionResult> Take(int id)
     {
         var topic = await _db.Topics.FindAsync(id);
-        if (topic == null || !topic.IsEnabled)
-            return NotFound();
+        if (topic == null)
+        {
+            Response.StatusCode = 404;
+            return View("NotAvailable", new TestNotAvailableViewModel
+            {
+                TopicId = id,
+                Title = "Тест не найден",
+                Message = "Такого теста нет (возможно, он был удалён или ещё не создан)."
+            });
+        }
 
-        var questions = _testService.LoadQuestionsForTopic(topic).ToList();
+        if (!topic.IsEnabled)
+        {
+            Response.StatusCode = 404;
+            return View("NotAvailable", new TestNotAvailableViewModel
+            {
+                TopicId = id,
+                Title = "Тест отключён",
+                Message = "Этот тест сейчас выключен администратором и недоступен для прохождения."
+            });
+        }
 
-        ViewBag.Topic = topic;
-        return View((topic, questions));
+        try
+        {
+            var questions = _testService.LoadQuestionsForTopic(topic).ToList();
+            ViewBag.Topic = topic;
+            return View((topic, questions));
+        }
+        catch
+        {
+            Response.StatusCode = 404;
+            return View("NotAvailable", new TestNotAvailableViewModel
+            {
+                TopicId = id,
+                Title = "Не удалось загрузить тест",
+                Message = "Файл теста не найден или повреждён. Проверьте, что исходный .txt файл существует в папке tests."
+            });
+        }
     }
 
     [HttpPost]
@@ -52,10 +174,43 @@ public class TestController : Controller
     public async Task<IActionResult> Take(int id, string? dummy = null)
     {
         var topic = await _db.Topics.FindAsync(id);
-        if (topic == null || !topic.IsEnabled)
-            return NotFound();
+        if (topic == null)
+        {
+            Response.StatusCode = 404;
+            return View("NotAvailable", new TestNotAvailableViewModel
+            {
+                TopicId = id,
+                Title = "Тест не найден",
+                Message = "Такого теста нет (возможно, он был удалён или ещё не создан)."
+            });
+        }
 
-        var questions = _testService.LoadQuestionsForTopic(topic).ToList();
+        if (!topic.IsEnabled)
+        {
+            Response.StatusCode = 404;
+            return View("NotAvailable", new TestNotAvailableViewModel
+            {
+                TopicId = id,
+                Title = "Тест отключён",
+                Message = "Этот тест сейчас выключен администратором и недоступен для прохождения."
+            });
+        }
+
+        List<QuestionModel> questions;
+        try
+        {
+            questions = _testService.LoadQuestionsForTopic(topic).ToList();
+        }
+        catch
+        {
+            Response.StatusCode = 404;
+            return View("NotAvailable", new TestNotAvailableViewModel
+            {
+                TopicId = id,
+                Title = "Не удалось загрузить тест",
+                Message = "Файл теста не найден или повреждён. Проверьте, что исходный .txt файл существует в папке tests."
+            });
+        }
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         var attempt = new TestAttempt

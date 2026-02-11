@@ -47,6 +47,18 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[F:/Учеба/QuizApp/Views/Schoolbook/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2Nob29sYm9va1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Учеба/QuizApp/Views/Schoolbook/_SchoolbookFolderContent.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2Nob29sYm9va1xfU2Nob29sYm9va0ZvbGRlckNvbnRlbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Учеба/QuizApp/Views/Schoolbook/_SchoolbookTreeLevel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2Nob29sYm9va1xfU2Nob29sYm9va1RyZWVMZXZlbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/Учеба/QuizApp/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -59,12 +71,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[F:/Учеба/QuizApp/Views/Test/NotAvailable.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxOb3RBdmFpbGFibGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [F:/Учеба/QuizApp/Views/Test/Result.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxSZXN1bHQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [F:/Учеба/QuizApp/Views/Test/Take.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxUYWtlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[F:/Учеба/QuizApp/Views/Test/_TestFolderContent.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVzdFxfVGVzdEZvbGRlckNvbnRlbnQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [F:/Учеба/QuizApp/Views/Test/_TestTreeLevel.cshtml]

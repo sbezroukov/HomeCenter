@@ -24,6 +24,24 @@ public class Topic
 
     public TopicType Type { get; set; }
 
+    [NotMapped]
+    public string TypeDisplayName => Type switch
+    {
+        TopicType.Test => "Тестирование",
+        TopicType.Open => "Открытые вопросы",
+        TopicType.SelfStudy => "Вопросы перед чтением",
+        _ => Type.ToString()
+    };
+
+    /// <summary>
+    /// Нормализует путь к разделителю текущей ОС (в БД пути хранятся с \ для совместимости).
+    /// </summary>
+    private static string NormalizePath(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+        return path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+    }
+
     /// <summary>
     /// Путь для отображения: категории и название теста, например "География / Урок 5 / test".
     /// </summary>
@@ -32,9 +50,10 @@ public class Topic
     {
         get
         {
-            var dir = Path.GetDirectoryName(FileName);
+            var dir = Path.GetDirectoryName(NormalizePath(FileName));
             if (string.IsNullOrEmpty(dir)) return Title;
-            return dir.Replace("\\", " / ") + " / " + Title;
+            var pathParts = dir.Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries);
+            return string.Join(" / ", pathParts) + " / " + Title;
         }
     }
 
@@ -42,7 +61,7 @@ public class Topic
     /// Путь папки (категории) без имени файла, для группировки в дереве.
     /// </summary>
     [NotMapped]
-    public string FolderPath => Path.GetDirectoryName(FileName) ?? string.Empty;
+    public string FolderPath => Path.GetDirectoryName(NormalizePath(FileName)) ?? string.Empty;
 
     /// <summary>
     /// Разрешена ли тема для прохождения обычным пользователям.

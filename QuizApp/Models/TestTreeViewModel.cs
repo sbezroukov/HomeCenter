@@ -22,6 +22,15 @@ public class TestTreeNode
     public List<Topic> Topics { get; set; } = new();
 
     /// <summary>
+    /// Нормализует путь к разделителю текущей ОС (в БД пути хранятся с \ для совместимости).
+    /// </summary>
+    private static string NormalizePath(string path)
+    {
+        if (string.IsNullOrEmpty(path)) return path;
+        return path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+    }
+
+    /// <summary>
     /// Строит дерево из плоского списка тем по путям папок.
     /// </summary>
     public static TestTreeNode BuildTree(IEnumerable<Topic> topics)
@@ -31,7 +40,8 @@ public class TestTreeNode
         var pathSet = new HashSet<string> { "" };
         foreach (var t in topics)
         {
-            var dir = Path.GetDirectoryName(t.FileName);
+            var fileNameNorm = NormalizePath(t.FileName);
+            var dir = Path.GetDirectoryName(fileNameNorm);
             if (string.IsNullOrEmpty(dir)) dir = "";
             pathSet.Add(dir);
             // Добавляем все родительские пути для вложенных папок
@@ -70,7 +80,8 @@ public class TestTreeNode
         // Раскладываем темы по узлам
         foreach (var t in topics)
         {
-            var dir = Path.GetDirectoryName(t.FileName);
+            var fileNameNorm = NormalizePath(t.FileName);
+            var dir = Path.GetDirectoryName(fileNameNorm);
             if (string.IsNullOrEmpty(dir)) dir = "";
             pathToNode[dir].Topics.Add(t);
         }

@@ -12,7 +12,7 @@
     <div class="card-body">
         <p class="mb-1"><strong>Пользователь:</strong> @Model.User.UserName</p>
         <p class="mb-1"><strong>Дата прохождения:</strong> @Model.StartedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
-        <p class="mb-1"><strong>Тип теста:</strong> @Model.Topic.Type</p>
+        <p class="mb-1"><strong>Тип теста:</strong> @Model.Topic.TypeDisplayName</p>
         <p class="mb-1"><strong>Всего вопросов:</strong> @Model.TotalQuestions</p>
         @if (Model.ScorePercent.HasValue)
         {

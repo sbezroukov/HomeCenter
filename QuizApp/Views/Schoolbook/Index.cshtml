@@ -1,0 +1,82 @@
+@model QuizApp.Models.SchoolbookIndexViewModel
+
+@{
+    ViewData["Title"] = "Учебники";
+}
+
+<div class="row">
+    <div class="col-md-4 col-lg-3 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="card-title h5 mb-3">Разделы</h2>
+                <p class="text-muted small">
+                    Выберите нужную папку, чтобы увидеть учебники.
+                </p>
+
+                @if (!Model.TreeRoot.Children.Any() && !Model.TreeRoot.Files.Any())
+                {
+                    <p class="text-muted mb-0">
+                        Папка с учебниками пока пуста. Добавьте PDF-файлы в папку <code>Schoolbook</code> рядом с папкой <code>tests</code>.
+                    </p>
+                }
+                else
+                {
+                    <div class="mb-2">
+                        <a asp-action="Index"
+                           class="text-decoration-none js-folder-link @(string.IsNullOrEmpty(Model.CurrentFolderPath) ? "fw-semibold" : "")"
+                           data-folder="">
+                            Все учебники
+                        </a>
+                    </div>
+
+                    @await Html.PartialAsync("_SchoolbookTreeLevel", (Model.TreeRoot, 0, Model.CurrentFolderPath))
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8 col-lg-9 mb-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body" id="schoolbook-folder-content">
+                @await Html.PartialAsync("_SchoolbookFolderContent", Model)
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('schoolbook-folder-content');
+            if (!container) return;
+
+            const baseUrl = '@Url.Action("Folder", "Schoolbook")';
+
+            document.querySelectorAll('.js-folder-link').forEach(function (link) {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const folder = link.getAttribute('data-folder') || '';
+                    const url = baseUrl + (folder ? ('?folder=' + encodeURIComponent(folder)) : '');
+
+                    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(function (response) {
+                            if (!response.ok) throw new Error('Network response was not ok');
+                            return response.text();
+                        })
+                        .then(function (html) {
+                            container.innerHTML = html;
+
+                            document.querySelectorAll('.js-folder-link').forEach(function (l) {
+                                l.classList.remove('fw-semibold');
+                            });
+                            link.classList.add('fw-semibold');
+                        })
+                        .catch(function (error) {
+                            console.error('Error loading folder content:', error);
+                        });
+                });
+            });
+        });
+    </script>
+}

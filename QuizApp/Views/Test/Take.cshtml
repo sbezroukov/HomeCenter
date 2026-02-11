@@ -4,7 +4,7 @@
     ViewData["Title"] = "Прохождение: " + Model.topic.Title;
 }
 
-<h2>@Model.topic.Title (@Model.topic.Type)</h2>
+<h2>@Model.topic.Title (@Model.topic.TypeDisplayName)</h2>
 
 @if (!Model.questions.Any())
 {

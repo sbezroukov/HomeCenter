@@ -1,0 +1,24 @@
+@model QuizApp.Models.SchoolbookIndexViewModel
+
+<h2 class="card-title h5 mb-3">Учебники в папке: @Model.CurrentFolderDisplay</h2>
+
+@if (!Model.FilesInFolder.Any())
+{
+    <p class="text-muted mb-0">В этой папке пока нет файлов учебников.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var file in Model.FilesInFolder)
+        {
+            var routePath = file.RelativePath.Replace('\\', '/');
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+               asp-action="Download"
+               asp-route-path="@routePath">
+                <span>@file.Name</span>
+                <span class="badge bg-secondary">PDF</span>
+            </a>
+        }
+    </div>
+}
+

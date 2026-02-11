@@ -1,0 +1,84 @@
+@model (QuizApp.Models.SchoolbookTreeNode Node, int Level, string? ActiveFolder)
+
+@{
+    var (node, level, activeFolder) = Model;
+    var hasChildren = node.Children.Any();
+    var hasFiles = node.Files.Any();
+
+    if (!hasChildren && !hasFiles)
+    {
+        return;
+    }
+}
+
+@* Корень дерева учебников *@
+@if (level == 0)
+{
+    <ul class="list-unstyled mb-0">
+        @foreach (var child in node.Children)
+        {
+            @await Html.PartialAsync("_SchoolbookTreeLevel", (child, level + 1, activeFolder))
+        }
+    </ul>
+
+    return;
+}
+
+@* Узлы-папки (level > 0) *@
+@{
+    var isActive = string.Equals(node.FolderPath, activeFolder ?? string.Empty, System.StringComparison.OrdinalIgnoreCase);
+
+    var folderId = "schoolbook-folder-" + (string.IsNullOrEmpty(node.FolderPath)
+        ? "root"
+        : node.FolderPath
+            .Replace('\\', '-')
+            .Replace('/', '-')
+            .Replace(' ', '-'));
+
+    var routeFolder = string.IsNullOrEmpty(node.FolderPath)
+        ? null
+        : node.FolderPath.Replace('\\', '/');
+}
+
+<li class="mb-1">
+    @if (hasChildren)
+    {
+        <div class="d-flex align-items-center">
+            <button class="btn btn-sm btn-link text-start text-decoration-none px-0 me-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#@folderId"
+                    aria-expanded="@(isActive ? "true" : "false")"
+                    aria-controls="@folderId">
+                <span class="me-1">▸</span>
+            </button>
+            <a class="text-decoration-none js-folder-link @(isActive ? "fw-semibold" : "")"
+               asp-action="Index"
+               asp-route-folder="@routeFolder"
+               data-folder="@routeFolder">
+                @node.Name
+            </a>
+        </div>
+
+        <div id="@folderId" class="collapse @(isActive ? "show" : "") ms-3 mt-1">
+            <ul class="list-unstyled mb-1">
+                @foreach (var child in node.Children)
+                {
+                    @await Html.PartialAsync("_SchoolbookTreeLevel", (child, level + 1, activeFolder))
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex align-items-center">
+            <a class="text-decoration-none js-folder-link @(isActive ? "fw-semibold" : "")"
+               asp-action="Index"
+               asp-route-folder="@routeFolder"
+               data-folder="@routeFolder">
+                @node.Name
+            </a>
+        </div>
+    }
+</li>
+

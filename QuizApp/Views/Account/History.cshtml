@@ -30,12 +30,13 @@ else
                 <td>@a.StartedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                 <td>@a.User.UserName</td>
                 <td>@a.Topic.DisplayPath</td>
-                <td>@a.Topic.Type</td>
+                <td>@a.Topic.TypeDisplayName</td>
                 <td>
                     @if (a.ScorePercent.HasValue)
                     {
-                        <span class="badge @(a.ScorePercent >= 70 ? "bg-success" : a.ScorePercent >= 50 ? "bg-warning" : "bg-danger")">
-                            @($"{a.ScorePercent:F2} %")
+                        var score = a.ScorePercent.Value;
+                        <span class="badge @(score >= 70 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-danger")">
+                            @($"{score:F2} %")
                         </span>
                         <small>(@a.CorrectAnswers из @a.TotalQuestions правильных)</small>
                     }
