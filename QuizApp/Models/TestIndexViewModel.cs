@@ -34,5 +34,10 @@ public class TestIndexViewModel
     /// ключ — TopicId.
     /// </summary>
     public Dictionary<int, TestLastResult> LastResultsByTopicId { get; set; } = new();
+
+    /// <summary>
+    /// Всего тем в текущей папке (включая отключённые), для корректного сообщения.
+    /// </summary>
+    public int TotalTopicsInFolder { get; set; }
 }
 

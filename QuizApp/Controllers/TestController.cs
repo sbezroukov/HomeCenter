@@ -77,6 +77,16 @@ namespace QuizApp.Controllers;
                 .OrderBy(t => t.Title)
                 .ToList();
 
+            var allTopicsInFolder = allTopics.AsEnumerable();
+            if (!string.IsNullOrEmpty(currentFolderPath))
+            {
+                var prefix = currentFolderPath + System.IO.Path.DirectorySeparatorChar;
+                allTopicsInFolder = allTopicsInFolder.Where(t =>
+                    t.FolderPath == currentFolderPath ||
+                    (!string.IsNullOrEmpty(t.FolderPath) && t.FolderPath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)));
+            }
+            var totalInFolder = allTopicsInFolder.Count();
+
             string display;
             if (string.IsNullOrEmpty(currentFolderPath))
             {
@@ -122,7 +132,8 @@ namespace QuizApp.Controllers;
                 TopicsInFolder = topicsInFolder,
                 CurrentFolderPath = currentFolderPath,
                 CurrentFolderDisplay = display,
-                LastResultsByTopicId = lastResults
+                LastResultsByTopicId = lastResults,
+                TotalTopicsInFolder = totalInFolder
             };
         }
 
@@ -302,20 +313,25 @@ namespace QuizApp.Controllers;
         if (attempt == null)
             return NotFound();
 
+        if (attempt.Topic == null || attempt.User == null)
+            return NotFound();
+
         var details = new List<object>();
         if (!string.IsNullOrEmpty(attempt.ResultJson))
         {
             try
             {
-                // Десериализуем как JsonElement для более удобной работы в представлении
                 var jsonDoc = JsonDocument.Parse(attempt.ResultJson);
-                details = jsonDoc.RootElement.EnumerateArray()
-                    .Select(e => (object)e.Clone())
-                    .ToList();
+                if (jsonDoc.RootElement.ValueKind == JsonValueKind.Array)
+                {
+                    details = jsonDoc.RootElement.EnumerateArray()
+                        .Select(e => (object)e.Clone())
+                        .ToList();
+                }
             }
             catch
             {
-                // игнорируем ошибки парсинга
+                // игнорируем ошибки парсинга JSON
             }
         }
 

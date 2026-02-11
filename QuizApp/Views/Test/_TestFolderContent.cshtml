@@ -4,7 +4,16 @@
 
 @if (!Model.TopicsInFolder.Any())
 {
-    <p class="text-muted mb-0">В этой папке пока нет тестов.</p>
+    <p class="text-muted mb-0">
+        @if (Model.TotalTopicsInFolder > 0)
+        {
+            <text>В этой папке есть тесты, но они отключены администратором. Включите их в админке.</text>
+        }
+        else
+        {
+            <text>В этой папке пока нет тестов.</text>
+        }
+    </p>
 }
 else
 {
