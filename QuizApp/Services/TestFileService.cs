@@ -210,6 +210,50 @@ public class TestFileService : ITestFileService
             }
         }
 
+        // Для MODE: Open — парсим секцию "---" и "Ответы" с правильными ответами
+        if (type == TopicType.Open && questions.Count > 0)
+        {
+            while (index < allLines.Count && !allLines[index].Trim().StartsWith("---", StringComparison.Ordinal))
+            {
+                index++;
+            }
+            if (index < allLines.Count)
+            {
+                index++;
+                while (index < allLines.Count && string.IsNullOrWhiteSpace(allLines[index]))
+                    index++;
+                if (index < allLines.Count && allLines[index].Trim().StartsWith("Ответы", StringComparison.OrdinalIgnoreCase))
+                {
+                    index++;
+                    var answersByNum = new Dictionary<int, string>();
+                    while (index < allLines.Count)
+                    {
+                        var line = allLines[index].Trim();
+                        if (string.IsNullOrWhiteSpace(line))
+                        {
+                            index++;
+                            continue;
+                        }
+                        var numEnd = 0;
+                        while (numEnd < line.Length && (char.IsDigit(line[numEnd]) || line[numEnd] == '.' || line[numEnd] == ')'))
+                            numEnd++;
+                        if (numEnd > 0 && int.TryParse(line.Substring(0, numEnd).TrimEnd('.', ')', ' ', '\t'), out var num))
+                        {
+                            var ans = line.Substring(numEnd).TrimStart('.', ')', ' ', '\t', ':');
+                            if (!string.IsNullOrEmpty(ans))
+                                answersByNum[num] = ans;
+                        }
+                        index++;
+                    }
+                    for (var i = 0; i < questions.Count; i++)
+                    {
+                        if (answersByNum.TryGetValue(i + 1, out var ans))
+                            questions[i].CorrectAnswer = ans;
+                    }
+                }
+            }
+        }
+
         return (type, questions);
     }
 }

@@ -267,7 +267,8 @@ namespace QuizApp.Controllers;
                 resultDetails.Add(new
                 {
                     Question = q.Text,
-                    Answer = value
+                    Answer = value,
+                    Correct = q.CorrectAnswer
                 });
             }
 

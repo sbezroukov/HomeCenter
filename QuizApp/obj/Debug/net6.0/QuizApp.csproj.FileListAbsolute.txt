@@ -49,3 +49,6 @@ F:\Учеба\QuizApp\obj\Debug\net6.0\refint\QuizApp.dll
 F:\Учеба\QuizApp\obj\Debug\net6.0\QuizApp.pdb
 F:\Учеба\QuizApp\obj\Debug\net6.0\QuizApp.genruntimeconfig.cache
 F:\Учеба\QuizApp\obj\Debug\net6.0\ref\QuizApp.dll
+C:\HomeRepositories\-----\QuizApp\obj\Debug\net6.0\QuizApp.dll
+C:\HomeRepositories\-----\QuizApp\obj\Debug\net6.0\refint\QuizApp.dll
+C:\HomeRepositories\-----\QuizApp\obj\Debug\net6.0\QuizApp.pdb

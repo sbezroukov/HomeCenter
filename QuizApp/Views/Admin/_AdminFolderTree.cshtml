@@ -1,0 +1,57 @@
+@model (QuizApp.Models.TestTreeNode Node, int Level, string? ActiveFolder)
+
+@{
+    var (node, level, activeFolder) = Model;
+    var hasAnyContent = node.Children.Count > 0 || node.Topics.Count > 0;
+    if (!hasAnyContent) { return; }
+}
+
+@if (level == 0)
+{
+    <ul class="list-unstyled mb-0">
+        @foreach (var child in node.Children)
+        {
+            @await Html.PartialAsync("_AdminFolderTree", (child, level + 1, activeFolder))
+        }
+    </ul>
+    return;
+}
+
+@{
+    var isActive = string.Equals(node.FolderPath, activeFolder ?? string.Empty, StringComparison.OrdinalIgnoreCase);
+    var folderId = "admin-folder-" + (string.IsNullOrEmpty(node.FolderPath) ? "root" : node.FolderPath.Replace('\\', '-').Replace('/', '-').Replace(' ', '-'));
+    var routeFolder = string.IsNullOrEmpty(node.FolderPath) ? null : node.FolderPath.Replace('\\', '/');
+    var hasChildren = node.Children.Count > 0;
+}
+
+<li class="mb-1">
+    @if (hasChildren)
+    {
+        <div class="d-flex align-items-center">
+            <button class="btn btn-sm btn-link text-start text-decoration-none px-0 me-1" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#@folderId"
+                    aria-expanded="@(isActive ? "true" : "false")" aria-controls="@folderId">
+                <span class="me-1">▸</span>
+            </button>
+            <a class="text-decoration-none @(isActive ? "fw-semibold" : "")"
+               asp-action="Index" asp-route-folder="@routeFolder" asp-route-includeSubfolders="true">
+                @node.Name
+            </a>
+        </div>
+        <div id="@folderId" class="collapse @(isActive ? "show" : "") ms-3 mt-1">
+            <ul class="list-unstyled mb-1">
+                @foreach (var child in node.Children)
+                {
+                    @await Html.PartialAsync("_AdminFolderTree", (child, level + 1, activeFolder))
+                }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <a class="text-decoration-none @(isActive ? "fw-semibold" : "")"
+           asp-action="Index" asp-route-folder="@routeFolder" asp-route-includeSubfolders="true">
+            @node.Name
+        </a>
+    }
+</li>

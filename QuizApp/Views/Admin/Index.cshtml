@@ -1,7 +1,12 @@
 @model IEnumerable<QuizApp.Models.Topic>
+@using QuizApp.Models
 
 @{
     ViewData["Title"] = "Админка";
+    var treeRoot = ViewBag.TreeRoot as TestTreeNode;
+    var currentFolder = ViewBag.CurrentFolderPath as string ?? "";
+    var includeSubfolders = ViewBag.IncludeSubfolders as bool? ?? true;
+    var folderDisplay = ViewBag.FolderDisplay as string ?? "Все темы";
 }
 
 <h2>Администрирование тем</h2>
@@ -10,9 +15,54 @@
     Пользователей: @ViewBag.TotalUsers<br />
     Попыток прохождения: @ViewBag.TotalAttempts<br />
     <a asp-action="History" class="btn btn-info btn-sm mt-2">Просмотреть историю всех пользователей</a>
+    <a asp-action="ImportTests" class="btn btn-outline-secondary btn-sm mt-2">Текстовый редактор тестов</a>
 </p>
 
-<table class="table table-striped">
+<div class="row">
+    <div class="col-md-4 col-lg-3 mb-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title h5 mb-3">Папки</h2>
+                <div class="mb-2">
+                    <a asp-action="Index" class="text-decoration-none @(string.IsNullOrEmpty(currentFolder) ? "fw-semibold" : "")">Все темы</a>
+                </div>
+                @if (treeRoot != null)
+                {
+                    @await Html.PartialAsync("_AdminFolderTree", (treeRoot, 0, currentFolder))
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8 col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title h5 mb-3">@folderDisplay</h2>
+
+                @if (!string.IsNullOrEmpty(currentFolder))
+                {
+                    <div class="mb-3 d-flex flex-wrap gap-2">
+                        <div class="btn-group btn-group-sm">
+                            <a asp-action="Index" asp-route-folder="@currentFolder" asp-route-includeSubfolders="false"
+                               class="btn btn-outline-secondary @(!includeSubfolders ? "active" : "")">Только эта папка</a>
+                            <a asp-action="Index" asp-route-folder="@currentFolder" asp-route-includeSubfolders="true"
+                               class="btn btn-outline-secondary @(includeSubfolders ? "active" : "")">С подпапками</a>
+                        </div>
+                        <form asp-action="ToggleFolder" method="post" class="d-inline js-toggle-folder-form">
+                            <input type="hidden" name="folderPath" value="@currentFolder" />
+                            <input type="hidden" name="includeSubfolders" value="@(includeSubfolders ? "true" : "false")" />
+                            <input type="hidden" name="enable" value="true" />
+                            <button type="submit" class="btn btn-sm btn-success">Включить все</button>
+                        </form>
+                        <form asp-action="ToggleFolder" method="post" class="d-inline js-toggle-folder-form">
+                            <input type="hidden" name="folderPath" value="@currentFolder" />
+                            <input type="hidden" name="includeSubfolders" value="@(includeSubfolders ? "true" : "false")" />
+                            <input type="hidden" name="enable" value="false" />
+                            <button type="submit" class="btn btn-sm btn-warning">Выключить все</button>
+                        </form>
+                    </div>
+                }
+
+                <table class="table table-striped">
     <thead>
     <tr>
         <th>Тема</th>
@@ -25,13 +75,13 @@
     <tbody>
     @foreach (var t in Model)
     {
-        <tr>
+        <tr data-topic-id="@t.Id">
             <td>@t.DisplayPath</td>
             <td>@t.FileName</td>
             <td>@t.TypeDisplayName</td>
-            <td>@(t.IsEnabled ? "Да" : "Нет")</td>
+            <td class="js-access-status">@(t.IsEnabled ? "Да" : "Нет")</td>
             <td>
-                <form asp-action="ToggleTopic" method="post" class="d-inline">
+                <form asp-action="ToggleTopic" method="post" class="d-inline js-toggle-form">
                     <input type="hidden" name="id" value="@t.Id" />
                     <button type="submit" class="btn btn-sm @(t.IsEnabled ? "btn-warning" : "btn-success")">
                         @(t.IsEnabled ? "Сделать недоступной" : "Сделать доступной")
@@ -42,6 +92,75 @@
     }
     </tbody>
 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.js-toggle-form').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var btn = form.querySelector('button[type="submit"]');
+                    var row = form.closest('tr');
+                    var statusCell = row.querySelector('.js-access-status');
+
+                    btn.disabled = true;
+
+                    var formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('Ошибка');
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        statusCell.textContent = data.isEnabled ? 'Да' : 'Нет';
+                        btn.textContent = data.isEnabled ? 'Сделать недоступной' : 'Сделать доступной';
+                        btn.className = 'btn btn-sm ' + (data.isEnabled ? 'btn-warning' : 'btn-success');
+                    })
+                    .catch(function () {
+                        alert('Не удалось изменить доступ. Обновите страницу.');
+                    })
+                    .finally(function () {
+                        btn.disabled = false;
+                    });
+                });
+            });
+
+            document.querySelectorAll('.js-toggle-folder-form').forEach(function (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var btn = form.querySelector('button[type="submit"]');
+                    btn.disabled = true;
+                    var formData = new FormData(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('Ошибка');
+                        return r.json();
+                    })
+                    .then(function (data) {
+                        location.reload();
+                    })
+                    .catch(function () {
+                        alert('Не удалось изменить доступ.');
+                        btn.disabled = false;
+                    });
+                });
+            });
+        });
+    </script>
+}
 
 <h3>Формат файлов в папке tests</h3>
 <pre>

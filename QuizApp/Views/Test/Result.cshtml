@@ -47,7 +47,9 @@
                 }
                 else if (Model.Topic.Type == QuizApp.Models.TopicType.Open)
                 {
-                    <th style="width: 55%">Ваш ответ</th>
+                    <th style="width: 25%">Ваш ответ</th>
+                    <th style="width: 25%">Правильный ответ</th>
+                    <th style="width: 5%">Оценка %</th>
                 }
                 else
                 {
@@ -90,6 +92,8 @@
                         else if (Model.Topic.Type == QuizApp.Models.TopicType.Open)
                         {
                             var answer = elem.TryGetProperty("Answer", out var ans) ? ans.GetString() : "Нет ответа";
+                            var correct = elem.TryGetProperty("Correct", out var cor) ? cor.GetString() : null;
+                            var scorePercent = elem.TryGetProperty("ScorePercent", out var sp) && sp.ValueKind == JsonValueKind.Number ? sp.GetDouble() : (double?)null;
                             <td>
                                 @if (string.IsNullOrWhiteSpace(answer))
                                 {
@@ -98,6 +102,26 @@
                                 else
                                 {
                                     <div style="white-space: pre-wrap;">@answer</div>
+                                }
+                            </td>
+                            <td>
+                                @if (string.IsNullOrEmpty(correct))
+                                {
+                                    <em class="text-muted">—</em>
+                                }
+                                else
+                                {
+                                    <div style="white-space: pre-wrap;">@correct</div>
+                                }
+                            </td>
+                            <td>
+                                @if (scorePercent.HasValue)
+                                {
+                                    <span class="badge @(scorePercent >= 70 ? "bg-success" : scorePercent >= 50 ? "bg-warning" : "bg-danger")">@($"{scorePercent:F0}%")</span>
+                                }
+                                else
+                                {
+                                    <em class="text-muted">—</em>
                                 }
                             </td>
                         }
@@ -111,6 +135,31 @@
             }
         </tbody>
     </table>
+}
+
+@if (User.IsInRole("Admin") && Model.Topic.Type == QuizApp.Models.TopicType.Open && details != null && details.Cast<object>().Any())
+{
+    <hr />
+    <h4>Проставить оценки (админ)</h4>
+    <form asp-controller="Admin" asp-action="RateAttempt" method="post" class="mb-3">
+        <input type="hidden" name="attemptId" value="@Model.Id" />
+        @{
+            int qi = 0;
+            foreach (var detail in details.Cast<object>())
+            {
+                var jsonElement = detail as System.Text.Json.JsonElement?;
+                if (jsonElement == null) continue;
+                var elem = jsonElement.Value;
+                var curScore = elem.TryGetProperty("ScorePercent", out var sp) && sp.ValueKind == JsonValueKind.Number ? sp.GetDouble() : (double?)null;
+                <div class="mb-2">
+                    <label class="form-label">Вопрос @(qi + 1): %</label>
+                    <input type="number" name="scores[@qi]" value="@(curScore?.ToString("F0") ?? "")" min="0" max="100" step="1" class="form-control form-control-sm" style="width: 80px;" placeholder="0–100" />
+                </div>
+                qi++;
+            }
+        }
+        <button type="submit" class="btn btn-primary btn-sm">Сохранить оценки</button>
+    </form>
 }
 
 <p>
