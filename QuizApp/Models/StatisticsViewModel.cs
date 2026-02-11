@@ -19,7 +19,10 @@ public class UserStatsViewModel
 {
     public int UserId { get; set; }
     public string UserName { get; set; } = string.Empty;
+    public int TotalTestsCount { get; set; }
     public int UniqueTestsCount { get; set; }
+    public int NotPassedTestsCount { get; set; }
+    public double NotPassedPercent { get; set; }
     public int TotalAttemptsCount { get; set; }
     public double AvgScorePercent { get; set; }
     public List<TestStatsRow> TestStats { get; set; } = new();
@@ -32,7 +35,10 @@ public class UserStatsSummary
 {
     public int UserId { get; set; }
     public string UserName { get; set; } = string.Empty;
+    public int TotalTestsCount { get; set; }
     public int UniqueTestsCount { get; set; }
+    public int NotPassedTestsCount { get; set; }
+    public double NotPassedPercent { get; set; }
     public int TotalAttemptsCount { get; set; }
     public double AvgScorePercent { get; set; }
 }
@@ -44,7 +50,6 @@ public class StatisticsViewModel
 {
     public UserStatsViewModel? CurrentUserStats { get; set; }
     public List<UserStatsSummary> AllUsersSummary { get; set; } = new();
-    public List<ApplicationUser> UserDropdown { get; set; } = new();
     public int? SelectedUserId { get; set; }
     public bool IsAdmin { get; set; }
 }

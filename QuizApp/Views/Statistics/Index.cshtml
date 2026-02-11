@@ -11,45 +11,33 @@
 
 @if (Model.IsAdmin)
 {
-    <div class="mb-4">
-        <form method="get" asp-action="Index" class="d-inline-flex align-items-center gap-2">
-            <label for="userId" class="form-label mb-0">Пользователь:</label>
-            <select name="userId" id="userId" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
-                @foreach (var u in Model.UserDropdown)
-                {
-                    if (Model.SelectedUserId == u.Id)
-                    {
-                        <option value="@u.Id" selected>@u.UserName</option>
-                    }
-                    else
-                    {
-                        <option value="@u.Id">@u.UserName</option>
-                    }
-                }
-            </select>
-        </form>
-    </div>
-
     <div class="card mb-4">
-        <div class="card-header">Сводка по всем пользователям</div>
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span>Сводка по всем пользователям</span>
+            <input type="text" id="userFilter" class="form-control form-control-sm" style="width: 200px;" placeholder="Фильтр по имени..." />
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-sm table-hover mb-0">
                     <thead>
                         <tr>
                             <th>Пользователь</th>
-                            <th>Пройдено тестов</th>
+                            <th>Всего тестов</th>
+                            <th>Пройдено</th>
+                            <th>Не пройдено</th>
                             <th>Всего попыток</th>
                             <th>Средний % успеха</th>
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="usersTableBody">
                         @foreach (var u in Model.AllUsersSummary)
                         {
-                            <tr class="@(Model.SelectedUserId == u.UserId ? "table-active" : "")">
+                            <tr class="user-row @(Model.SelectedUserId == u.UserId ? "table-active" : "")" data-username="@u.UserName.ToLowerInvariant()">
                                 <td>@u.UserName</td>
+                                <td>@u.TotalTestsCount</td>
                                 <td>@u.UniqueTestsCount</td>
+                                <td>@u.NotPassedTestsCount (@($"{u.NotPassedPercent:F1}")%)</td>
                                 <td>@u.TotalAttemptsCount</td>
                                 <td>
                                     <span class="badge @(u.AvgScorePercent >= 70 ? "bg-success" : u.AvgScorePercent >= 50 ? "bg-warning" : "bg-secondary")">
@@ -70,6 +58,24 @@
             }
         </div>
     </div>
+
+    @section Scripts {
+    <script>
+        (function () {
+            var filter = document.getElementById('userFilter');
+            var rows = document.querySelectorAll('.user-row');
+            if (filter && rows.length) {
+                filter.addEventListener('input', function () {
+                    var q = this.value.trim().toLowerCase();
+                    rows.forEach(function (r) {
+                        var name = r.getAttribute('data-username') || '';
+                        r.style.display = (!q || name.indexOf(q) >= 0) ? '' : 'none';
+                    });
+                });
+            }
+        })();
+    </script>
+    }
 }
 
 @if (Model.CurrentUserStats != null)
@@ -87,31 +93,47 @@
         </div>
         <div class="card-body">
             <div class="row mb-4">
-                <div class="col-md-4">
+                <div class="col-6 col-md-2 mb-2">
                     <div class="card bg-light">
-                        <div class="card-body text-center">
-                            <div class="display-6">@Model.CurrentUserStats.UniqueTestsCount</div>
-                            <div class="text-muted small">пройдено тестов</div>
+                        <div class="card-body text-center py-3">
+                            <div class="display-6">@Model.CurrentUserStats.TotalTestsCount</div>
+                            <div class="text-muted small">всего тестов</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-6 col-md-2 mb-2">
                     <div class="card bg-light">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center py-3">
+                            <div class="display-6">@Model.CurrentUserStats.UniqueTestsCount</div>
+                            <div class="text-muted small">пройдено</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 mb-2">
+                    <div class="card bg-light">
+                        <div class="card-body text-center py-3">
+                            <div class="display-6">@Model.CurrentUserStats.NotPassedTestsCount</div>
+                            <div class="text-muted small">не пройдено (@($"{Model.CurrentUserStats.NotPassedPercent:F1}")%)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-2 mb-2">
+                    <div class="card bg-light">
+                        <div class="card-body text-center py-3">
                             <div class="display-6">@Model.CurrentUserStats.TotalAttemptsCount</div>
                             <div class="text-muted small">всего попыток</div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-6 col-md-2 mb-2">
                     <div class="card bg-light">
-                        <div class="card-body text-center">
+                        <div class="card-body text-center py-3">
                             <div class="display-6">
                                 <span class="badge @(Model.CurrentUserStats.AvgScorePercent >= 70 ? "bg-success" : Model.CurrentUserStats.AvgScorePercent >= 50 ? "bg-warning" : "bg-secondary")" style="font-size: 1.5rem;">
                                     @($"{Model.CurrentUserStats.AvgScorePercent:F1} %")
                                 </span>
                             </div>
-                            <div class="text-muted small">средний процент успеха</div>
+                            <div class="text-muted small">средний % успеха</div>
                         </div>
                     </div>
                 </div>
