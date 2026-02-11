@@ -55,17 +55,27 @@ Q: Открытый вопрос 2?
     </div>
 </div>
 
-<div id="createResult" class="card mb-3" style="display: none;">
-    <div class="card-header">Результат создания</div>
-    <div class="card-body">
-        <div id="createMessage"></div>
-        <div id="createdListWrap" style="display: none;" class="mt-3">
-            <p class="mb-2 fw-semibold">Созданные тесты:</p>
-            <ul id="createdList" class="mb-0 list-group list-group-flush"></ul>
-        </div>
-        <div id="failedListWrap" style="display: none;" class="mt-3">
-            <p class="mb-2 fw-semibold text-danger">Ошибки при создании:</p>
-            <ul id="failedList" class="mb-0 list-group list-group-flush text-danger"></ul>
+<div class="modal fade" id="createResultModal" tabindex="-1" aria-labelledby="createResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createResultModalLabel">Результат создания тестов</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+                <div id="createMessage"></div>
+                <div id="createdListWrap" style="display: none;" class="mt-3">
+                    <p class="mb-2 fw-semibold">Созданные тесты:</p>
+                    <ul id="createdList" class="mb-0 list-group list-group-flush"></ul>
+                </div>
+                <div id="failedListWrap" style="display: none;" class="mt-3">
+                    <p class="mb-2 fw-semibold text-danger">Ошибки при создании:</p>
+                    <ul id="failedList" class="mb-0 list-group list-group-flush text-danger"></ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
         </div>
     </div>
 </div>
@@ -80,7 +90,7 @@ Q: Открытый вопрос 2?
             var parseErrors = document.getElementById('parseErrors');
             var parsePreview = document.getElementById('parsePreview');
             var fileList = document.getElementById('fileList');
-            var createResult = document.getElementById('createResult');
+            var createResultModal = document.getElementById('createResultModal');
             var createMessage = document.getElementById('createMessage');
             var createdListWrap = document.getElementById('createdListWrap');
             var createdList = document.getElementById('createdList');
@@ -111,7 +121,6 @@ Q: Открытый вопрос 2?
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
                     parseResult.style.display = 'block';
-                    createResult.style.display = 'none';
 
                     if (data.errors && data.errors.length > 0) {
                         parseErrors.style.display = 'block';
@@ -163,9 +172,8 @@ Q: Открытый вопрос 2?
                 })
                 .then(function (r) { return r.json(); })
                 .then(function (data) {
-                    createResult.style.display = 'block';
                     createMessage.textContent = data.message || '';
-                    createMessage.className = data.success ? 'alert alert-success' : 'alert alert-warning';
+                    createMessage.className = 'alert ' + (data.success ? 'alert-success' : 'alert-warning');
 
                     createdList.innerHTML = '';
                     failedList.innerHTML = '';
@@ -188,11 +196,17 @@ Q: Открытый вопрос 2?
                             failedList.appendChild(li);
                         });
                     }
+
+                    var modal = new bootstrap.Modal(createResultModal);
+                    modal.show();
                 })
                 .catch(function (err) {
-                    createResult.style.display = 'block';
                     createMessage.textContent = 'Ошибка: ' + err.message;
                     createMessage.className = 'alert alert-danger';
+                    createdListWrap.style.display = 'none';
+                    failedListWrap.style.display = 'none';
+                    var modal = new bootstrap.Modal(createResultModal);
+                    modal.show();
                 });
             });
         })();
