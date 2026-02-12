@@ -27,6 +27,7 @@ namespace HomeCenter.Services;
 ///     3) 5
 ///
 ///   Строка с * в начале варианта считается правильным ответом.
+///   Несколько вариантов с * — вопрос с множественным выбором (чекбоксы).
 ///   Для MODE: Open и MODE: Self после "Q:" дополнительных строк не требуется.
 /// </summary>
 public class TestFileService : ITestFileService

@@ -131,16 +131,40 @@ public class TestController : Controller
             for (int i = 0; i < questions!.Count; i++)
             {
                 var q = questions[i];
-                var value = Request.Form[$"q{i}"];
-                int selectedIndex = int.TryParse(value, out var idx) ? idx : -1;
+                bool isMulti = q.IsMultipleCorrect;
+                bool isCorrect;
+                object selected;
+                object correctVal;
 
-                var selectedOption = selectedIndex >= 0 && selectedIndex < q.Options.Count
-                    ? q.Options[selectedIndex]
-                    : null;
-                var correctOption = q.Options.FirstOrDefault(o => o.IsCorrect);
-
-                bool isCorrect = selectedOption != null && correctOption != null &&
+                if (isMulti)
+                {
+                    var formValues = Request.Form[$"q{i}"].ToArray();
+                    var selectedIndices = formValues
+                        .Select(s => int.TryParse(s, out var v) ? v : -1)
+                        .Where(v => v >= 0 && v < q.Options.Count)
+                        .OrderBy(x => x)
+                        .ToList();
+                    var correctIndices = Enumerable.Range(0, q.Options.Count)
+                        .Where(j => q.Options[j].IsCorrect)
+                        .OrderBy(x => x)
+                        .ToList();
+                    isCorrect = selectedIndices.SequenceEqual(correctIndices);
+                    selected = selectedIndices.Select(j => q.Options[j].Text).ToList();
+                    correctVal = correctIndices.Select(j => q.Options[j].Text).ToList();
+                }
+                else
+                {
+                    var value = Request.Form[$"q{i}"];
+                    int selectedIndex = int.TryParse(value, out var idx) ? idx : -1;
+                    var selectedOption = selectedIndex >= 0 && selectedIndex < q.Options.Count
+                        ? q.Options[selectedIndex]
+                        : null;
+                    var correctOption = q.Options.FirstOrDefault(o => o.IsCorrect);
+                    isCorrect = selectedOption != null && correctOption != null &&
                                  ReferenceEquals(selectedOption, correctOption);
+                    selected = selectedOption?.Text ?? (object)"Не выбран";
+                    correctVal = correctOption?.Text ?? "Не указан";
+                }
 
                 if (isCorrect)
                     correct++;
@@ -148,8 +172,8 @@ public class TestController : Controller
                 resultDetails.Add(new
                 {
                     Question = q.Text,
-                    Selected = selectedOption?.Text,
-                    Correct = correctOption?.Text,
+                    Selected = selected,
+                    Correct = correctVal,
                     IsCorrect = isCorrect
                 });
             }

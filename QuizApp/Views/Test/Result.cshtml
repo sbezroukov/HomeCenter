@@ -94,12 +94,12 @@ else
                         
                         @if (topic.Type == HomeCenter.Models.TopicType.Test)
                         {
-                            var selected = elem.TryGetProperty("Selected", out var sel) ? sel.GetString() : "Не выбран";
-                            var correct = elem.TryGetProperty("Correct", out var cor) ? cor.GetString() : "Не указан";
+                            var selected = GetJsonString(elem, "Selected") ?? "Не выбран";
+                            var correct = GetJsonString(elem, "Correct") ?? "Не указан";
                             var isCorrect = elem.TryGetProperty("IsCorrect", out var isCor) && isCor.GetBoolean();
                             
-                            <td>@selected</td>
-                            <td>@correct</td>
+                            <td><div style="white-space: pre-wrap;">@selected</div></td>
+                            <td><div style="white-space: pre-wrap;">@correct</div></td>
                             <td>
                                 @if (isCorrect)
                                 {

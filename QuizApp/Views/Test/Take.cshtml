@@ -22,20 +22,26 @@ else
 
                 @if (Model.topic.Type == HomeCenter.Models.TopicType.Test)
                 {
+                    var isMulti = q.IsMultipleCorrect;
                     for (int j = 0; j < q.Options.Count; j++)
                     {
                         var name = $"q{i}";
                         var id = $"q{i}-{j}";
                         <div class="form-check">
                             <input class="form-check-input"
-                                   type="radio"
+                                   type="@(isMulti ? "checkbox" : "radio")"
                                    name="@name"
                                    id="@id"
-                                   value="@j" />
+                                   value="@j"
+                                   @(!isMulti ? Html.Raw("required") : null) />
                             <label class="form-check-label" for="@id">
                                 @q.Options[j].Text
                             </label>
                         </div>
+                    }
+                    @if (isMulti)
+                    {
+                        <p class="small text-muted mt-1 mb-0">Выберите все правильные варианты</p>
                     }
                 }
                 else if (Model.topic.Type == HomeCenter.Models.TopicType.Open)
