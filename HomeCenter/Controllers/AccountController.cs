@@ -11,11 +11,13 @@ public class AccountController : Controller
 {
     private readonly ApplicationDbContext _db;
     private readonly IAuthService _authService;
+    private readonly IConfiguration _configuration;
 
-    public AccountController(ApplicationDbContext db, IAuthService authService)
+    public AccountController(ApplicationDbContext db, IAuthService authService, IConfiguration configuration)
     {
         _db = db;
         _authService = authService;
+        _configuration = configuration;
     }
 
     [HttpGet]
@@ -59,6 +61,24 @@ public class AccountController : Controller
         if (!ModelState.IsValid)
             return View(model);
 
+        var adminUser = _configuration["Admin:Username"];
+        var adminPassword = _configuration["Admin:Password"];
+        if (!string.IsNullOrEmpty(adminUser) && model.UserName == adminUser && model.Password == adminPassword)
+        {
+            var admin = await _db.Users.FirstOrDefaultAsync(u => u.UserName == adminUser);
+            if (admin == null)
+            {
+                admin = new ApplicationUser { UserName = adminUser, Password = "" };
+                _db.Users.Add(admin);
+                await _db.SaveChangesAsync();
+            }
+            await _authService.SignInAsync(admin, "Admin");
+            var redirectUrl = model.ReturnUrl ?? returnUrl;
+            if (!string.IsNullOrEmpty(redirectUrl) && Url.IsLocalUrl(redirectUrl))
+                return Redirect(redirectUrl);
+            return RedirectToAction("Index", "Home");
+        }
+
         var user = await _db.Users.SingleOrDefaultAsync(u => u.UserName == model.UserName && u.Password == model.Password);
         if (user == null)
         {
@@ -68,9 +88,9 @@ public class AccountController : Controller
 
         await _authService.SignInAsync(user, "User");
 
-        var redirectUrl = model.ReturnUrl ?? returnUrl;
-        if (!string.IsNullOrEmpty(redirectUrl) && Url.IsLocalUrl(redirectUrl))
-            return Redirect(redirectUrl);
+        var redirectUrl2 = model.ReturnUrl ?? returnUrl;
+        if (!string.IsNullOrEmpty(redirectUrl2) && Url.IsLocalUrl(redirectUrl2))
+            return Redirect(redirectUrl2);
 
         return RedirectToAction("Index", "Home");
     }

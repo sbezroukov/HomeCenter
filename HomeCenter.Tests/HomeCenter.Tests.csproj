@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\QuizApp\HomeCenter.csproj" />
+    <ProjectReference Include="..\HomeCenter\HomeCenter.csproj" />
   </ItemGroup>
 
 </Project>

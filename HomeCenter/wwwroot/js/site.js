@@ -65,7 +65,7 @@
 
 // Сохраняем и восстанавливаем состояние навигационного меню
 (function () {
-    var STORAGE_KEY = 'quizapp-navbar-expanded';
+    var STORAGE_KEY = 'homecenter-navbar-expanded';
     var collapseEl = document.querySelector('.navbar-collapse');
     var toggler = document.querySelector('.navbar-toggler');
     
