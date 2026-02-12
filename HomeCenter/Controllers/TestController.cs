@@ -16,12 +16,14 @@ public class TestController : Controller
     private readonly ApplicationDbContext _db;
     private readonly ITestFileService _testService;
     private readonly IAuthService _authService;
+    private readonly IOpenAnswerGradingService _gradingService;
 
-    public TestController(ApplicationDbContext db, ITestFileService testService, IAuthService authService)
+    public TestController(ApplicationDbContext db, ITestFileService testService, IAuthService authService, IOpenAnswerGradingService gradingService)
     {
         _db = db;
         _testService = testService;
         _authService = authService;
+        _gradingService = gradingService;
     }
 
     public async Task<IActionResult> Index(string? folder = null)
@@ -124,6 +126,7 @@ public class TestController : Controller
         };
 
         var resultDetails = new List<object>();
+        List<GradingItem>? gradingItems = null;
 
         if (topic!.Type == TopicType.Test)
         {
@@ -185,6 +188,7 @@ public class TestController : Controller
         }
         else if (topic!.Type == TopicType.Open)
         {
+            gradingItems = new List<GradingItem>();
             for (int i = 0; i < questions!.Count; i++)
             {
                 var q = questions[i];
@@ -194,6 +198,12 @@ public class TestController : Controller
                     Question = q.Text,
                     Answer = value,
                     Correct = q.CorrectAnswer
+                });
+                gradingItems.Add(new GradingItem
+                {
+                    Question = q.Text,
+                    StudentAnswer = value,
+                    CorrectAnswer = q.CorrectAnswer
                 });
             }
 
@@ -213,6 +223,31 @@ public class TestController : Controller
 
         _db.Attempts.Add(attempt);
         await _db.SaveChangesAsync();
+
+        if (topic!.Type == TopicType.Open && gradingItems != null && gradingItems.Count > 0)
+            {
+                var scores = await _gradingService.GradeAsync(topic, gradingItems);
+                if (scores != null && scores.Count > 0)
+                {
+                    var detailsList = System.Text.Json.JsonSerializer.Deserialize<List<System.Text.Json.Nodes.JsonObject>>(attempt.ResultJson!);
+                    if (detailsList != null)
+                    {
+                        for (var i = 0; i < Math.Min(detailsList.Count, scores.Count); i++)
+                        {
+                            if (scores[i].HasValue)
+                                detailsList[i]["ScorePercent"] = Math.Round(scores[i]!.Value, 2);
+                        }
+                        attempt.ResultJson = System.Text.Json.JsonSerializer.Serialize(detailsList, new JsonSerializerOptions
+                        {
+                            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                        });
+                        var scoredCount = scores.Count(s => s.HasValue);
+                        if (scoredCount > 0)
+                            attempt.ScorePercent = Math.Round(scores.Where(s => s.HasValue).Average(s => s!.Value), 2);
+                        await _db.SaveChangesAsync();
+                    }
+                }
+            }
 
         return RedirectToAction("Result", new { id = attempt.Id });
     }

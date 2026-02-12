@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddAuthorization();
         services.AddMemoryCache();
         services.AddHttpContextAccessor();
+        services.AddHttpClient();
 
         services.AddScoped<TestFileService>();
         services.AddScoped<ITestFileService>(sp => new CachedTestFileService(
@@ -34,6 +35,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITestImportService, TestImportService>();
         services.AddScoped<ITestHistoryService, TestHistoryService>();
+        services.AddScoped<IOpenAnswerGradingService, OpenAnswerGradingService>();
 
         return services;
     }

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,7 @@ public class AdminController : Controller
     private readonly IAuthService _authService;
     private readonly IWebHostEnvironment _env;
     private readonly ITestHistoryService _historyService;
+    private readonly IOpenAnswerGradingService _gradingService;
 
     public AdminController(
         ApplicationDbContext db,
@@ -27,7 +29,8 @@ public class AdminController : Controller
         ITestImportService testImportService,
         IAuthService authService,
         IWebHostEnvironment env,
-        ITestHistoryService historyService)
+        ITestHistoryService historyService,
+        IOpenAnswerGradingService gradingService)
     {
         _db = db;
         _configuration = configuration;
@@ -36,6 +39,7 @@ public class AdminController : Controller
         _authService = authService;
         _env = env;
         _historyService = historyService;
+        _gradingService = gradingService;
     }
 
     [AllowAnonymous]
@@ -212,6 +216,65 @@ public class AdminController : Controller
 
         return RedirectToAction("Result", "Test", new { id = attemptId });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RegradeAttempt(int attemptId)
+    {
+        var attempt = await _db.Attempts
+            .Include(a => a.Topic)
+            .SingleOrDefaultAsync(a => a.Id == attemptId);
+        if (attempt == null || attempt.Topic?.Type != TopicType.Open)
+            return NotFound();
+
+        if (string.IsNullOrEmpty(attempt.ResultJson))
+            return RedirectToAction("Result", "Test", new { id = attemptId });
+
+        var details = System.Text.Json.JsonSerializer.Deserialize<List<System.Text.Json.Nodes.JsonObject>>(attempt.ResultJson);
+        if (details == null)
+            return RedirectToAction("Result", "Test", new { id = attemptId });
+
+        var gradingItems = new List<GradingItem>();
+        foreach (var d in details)
+        {
+            gradingItems.Add(new GradingItem
+            {
+                Question = GetStringFromJsonNode(d["Question"]),
+                StudentAnswer = GetStringFromJsonNode(d["Answer"]),
+                CorrectAnswer = GetStringFromJsonNodeOrNull(d["Correct"])
+            });
+        }
+
+        if (gradingItems.Count == 0)
+            return RedirectToAction("Result", "Test", new { id = attemptId });
+
+        var scores = await _gradingService.GradeAsync(attempt.Topic, gradingItems);
+        if (scores == null || scores.Count == 0)
+            return RedirectToAction("Result", "Test", new { id = attemptId });
+
+        for (var i = 0; i < Math.Min(details.Count, scores.Count); i++)
+        {
+            if (scores[i].HasValue)
+                details[i]["ScorePercent"] = Math.Round(scores[i]!.Value, 2);
+        }
+
+        attempt.ScorePercent = scores.Count(s => s.HasValue) > 0
+            ? Math.Round(scores.Where(s => s.HasValue).Average(s => s!.Value), 2)
+            : null;
+        attempt.ResultJson = System.Text.Json.JsonSerializer.Serialize(details, new System.Text.Json.JsonSerializerOptions
+        {
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        });
+        await _db.SaveChangesAsync();
+
+        return RedirectToAction("Result", "Test", new { id = attemptId });
+    }
+
+    private static string GetStringFromJsonNode(JsonNode? node) =>
+        node is JsonValue jv ? jv.GetValue<string>() ?? "" : (node?.ToString() ?? "");
+
+    private static string? GetStringFromJsonNodeOrNull(JsonNode? node) =>
+        node is JsonValue jv ? jv.GetValue<string>() : (node?.ToString());
 
     [HttpGet]
     public IActionResult ImportTests()
