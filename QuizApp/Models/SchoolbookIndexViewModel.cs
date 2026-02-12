@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 /// <summary>
 /// Модель для страницы /Schoolbook: дерево папок слева и список файлов в выбранной папке справа.

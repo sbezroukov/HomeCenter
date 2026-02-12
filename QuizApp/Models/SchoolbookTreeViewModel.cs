@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using QuizApp.Utils;
+using HomeCenter.Utils;
 
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 /// <summary>
 /// Описание PDF-файла учебника для отображения в дереве.

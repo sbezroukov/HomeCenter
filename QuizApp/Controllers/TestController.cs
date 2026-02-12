@@ -3,12 +3,12 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuizApp.Data;
-using QuizApp.Models;
-using QuizApp.Services;
-using QuizApp.Utils;
+using HomeCenter.Data;
+using HomeCenter.Models;
+using HomeCenter.Services;
+using HomeCenter.Utils;
 
-namespace QuizApp.Controllers;
+namespace HomeCenter.Controllers;
 
 [Authorize]
 public class TestController : Controller

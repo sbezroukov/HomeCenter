@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using QuizApp.Models;
+using HomeCenter.Models;
 
-namespace QuizApp.Services;
+namespace HomeCenter.Services;
 
 public interface ITestFileService
 {

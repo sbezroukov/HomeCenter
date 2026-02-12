@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using QuizApp.Utils;
+using HomeCenter.Utils;
 
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 /// <summary>
 /// Узел дерева категорий и тестов для отображения списка тем с учётом подпапок.

@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using QuizApp.Models;
+using HomeCenter.Models;
 
-namespace QuizApp.Data;
+namespace HomeCenter.Data;
 
 public class ApplicationDbContext : DbContext
 {

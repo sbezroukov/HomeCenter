@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
-using QuizApp.Utils;
+using HomeCenter.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using QuizApp.Data;
-using QuizApp.Models;
+using HomeCenter.Data;
+using HomeCenter.Models;
 
-namespace QuizApp.Services;
+namespace HomeCenter.Services;
 
 /// <summary>
 /// Чтение и разбор txt-файлов из папки tests.

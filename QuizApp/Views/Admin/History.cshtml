@@ -1,17 +1,71 @@
-@model IEnumerable<QuizApp.Models.TestAttempt>
+@model IEnumerable<HomeCenter.Models.TestAttempt>
 
 @{
     ViewData["Title"] = "История прохождения всех пользователей";
+    var filterType = ViewBag.Type as string;
+    var filterHasScore = ViewBag.HasScore as bool?;
+    var hasFilters = !string.IsNullOrEmpty(ViewBag.UserName as string) || !string.IsNullOrEmpty(ViewBag.Topic as string) ||
+        !string.IsNullOrEmpty(filterType) || ViewBag.DateFrom != null || ViewBag.DateTo != null ||
+        filterHasScore != null || ViewBag.MinScore != null;
 }
 
 <h2>История прохождения всех пользователей</h2>
 
+<form method="get" asp-action="History" class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <label class="form-label small">Пользователь</label>
+                <input type="text" name="userName" value="@ViewBag.UserName" class="form-control form-control-sm" placeholder="Поиск по логину" />
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="form-label small">Тема</label>
+                <input type="text" name="topic" value="@ViewBag.Topic" class="form-control form-control-sm" placeholder="Поиск по теме" />
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small">Тип</label>
+                <select name="type" class="form-select form-select-sm">
+                    <option value="">Все</option>
+                    @if (filterType == "Test") { <option value="Test" selected>Тестирование</option> } else { <option value="Test">Тестирование</option> }
+                    @if (filterType == "Open") { <option value="Open" selected>Открытые вопросы</option> } else { <option value="Open">Открытые вопросы</option> }
+                    @if (filterType == "SelfStudy") { <option value="SelfStudy" selected>Вопросы перед чтением</option> } else { <option value="SelfStudy">Вопросы перед чтением</option> }
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small">Дата с</label>
+                <input type="date" name="dateFrom" value="@ViewBag.DateFrom" class="form-control form-control-sm" />
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small">Дата по</label>
+                <input type="date" name="dateTo" value="@ViewBag.DateTo" class="form-control form-control-sm" />
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small">Результат</label>
+                <select name="hasScore" class="form-select form-select-sm">
+                    <option value="">Любой</option>
+                    @if (filterHasScore == true) { <option value="true" selected>С оценкой</option> } else { <option value="true">С оценкой</option> }
+                    @if (filterHasScore == false) { <option value="false" selected>Без оценки</option> } else { <option value="false">Без оценки</option> }
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small">Мин. %</label>
+                <input type="number" name="minScore" value="@ViewBag.MinScore" class="form-control form-control-sm" placeholder="0–100" min="0" max="100" step="0.01" />
+            </div>
+            <div class="col-md-12 d-flex gap-2 align-items-end">
+                <button type="submit" class="btn btn-primary btn-sm">Применить</button>
+                <a asp-action="History" class="btn btn-outline-secondary btn-sm">Сбросить</a>
+            </div>
+        </div>
+    </div>
+</form>
+
 @if (!Model.Any())
 {
-    <p>Пока нет попыток прохождения тестов.</p>
+    <p class="text-muted">Попыток не найдено. @(hasFilters ? "Попробуйте изменить фильтры." : "")</p>
 }
 else
 {
+    <p class="text-muted small mb-2">Показано записей: @Model.Count()</p>
     <table class="table table-striped table-hover">
         <thead>
         <tr>

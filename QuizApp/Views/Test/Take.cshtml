@@ -1,4 +1,4 @@
-@model (QuizApp.Models.Topic topic, System.Collections.Generic.List<QuizApp.Models.QuestionModel> questions)
+@model (HomeCenter.Models.Topic topic, System.Collections.Generic.List<HomeCenter.Models.QuestionModel> questions)
 
 @{
     ViewData["Title"] = "Прохождение: " + Model.topic.Title;
@@ -20,7 +20,7 @@ else
             <div class="mb-3">
                 <h5>@(i + 1). @q.Text</h5>
 
-                @if (Model.topic.Type == QuizApp.Models.TopicType.Test)
+                @if (Model.topic.Type == HomeCenter.Models.TopicType.Test)
                 {
                     for (int j = 0; j < q.Options.Count; j++)
                     {
@@ -38,7 +38,7 @@ else
                         </div>
                     }
                 }
-                else if (Model.topic.Type == QuizApp.Models.TopicType.Open)
+                else if (Model.topic.Type == HomeCenter.Models.TopicType.Open)
                 {
                     var name = $"q{i}";
                     <textarea class="form-control" name="@name" rows="3"></textarea>

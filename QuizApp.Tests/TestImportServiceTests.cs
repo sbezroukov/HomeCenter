@@ -1,8 +1,8 @@
 using Microsoft.Extensions.FileProviders;
-using QuizApp.Services;
+using HomeCenter.Services;
 using Xunit;
 
-namespace QuizApp.Tests;
+namespace HomeCenter.Tests;
 
 public class TestImportServiceTests
 {
@@ -83,10 +83,10 @@ content
 
     private class TestWebHostEnvironment : Microsoft.AspNetCore.Hosting.IWebHostEnvironment
     {
-        public string ContentRootPath { get; set; } = Path.Combine(Path.GetTempPath(), "QuizAppTests");
+        public string ContentRootPath { get; set; } = Path.Combine(Path.GetTempPath(), "HomeCenterTests");
         public string EnvironmentName { get; set; } = "Test";
-        public string ApplicationName { get; set; } = "QuizApp.Tests";
-        public string WebRootPath { get; set; } = Path.Combine(Path.GetTempPath(), "QuizAppTests", "wwwroot");
+        public string ApplicationName { get; set; } = "HomeCenter.Tests";
+        public string WebRootPath { get; set; } = Path.Combine(Path.GetTempPath(), "HomeCenterTests", "wwwroot");
         public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
         public IFileProvider WebRootFileProvider { get; set; } = new NullFileProvider();
     }

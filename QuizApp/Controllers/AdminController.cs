@@ -2,12 +2,12 @@ using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuizApp.Data;
-using QuizApp.Models;
-using QuizApp.Services;
-using QuizApp.Utils;
+using HomeCenter.Data;
+using HomeCenter.Models;
+using HomeCenter.Services;
+using HomeCenter.Utils;
 
-namespace QuizApp.Controllers;
+namespace HomeCenter.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class AdminController : Controller
@@ -260,13 +260,67 @@ public class AdminController : Controller
         });
     }
 
-    public async Task<IActionResult> History()
+    public async Task<IActionResult> History(
+        string? userName = null,
+        string? topic = null,
+        string? type = null,
+        DateTime? dateFrom = null,
+        DateTime? dateTo = null,
+        double? minScore = null,
+        bool? hasScore = null)
     {
-        var attempts = await _db.Attempts
+        var query = _db.Attempts
             .Include(a => a.Topic)
             .Include(a => a.User)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(userName))
+        {
+            var u = userName.Trim().ToLower();
+            query = query.Where(a => a.User != null && a.User.UserName != null && a.User.UserName.ToLower().Contains(u));
+        }
+
+        if (!string.IsNullOrWhiteSpace(topic))
+        {
+            var t = topic.Trim().ToLower();
+            query = query.Where(a => a.Topic != null &&
+                (a.Topic.Title.ToLower().Contains(t) || a.Topic.FileName.ToLower().Contains(t)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(type))
+        {
+            if (Enum.TryParse<TopicType>(type, ignoreCase: true, out var topicType))
+                query = query.Where(a => a.Topic != null && a.Topic.Type == topicType);
+        }
+
+        if (dateFrom.HasValue)
+            query = query.Where(a => a.StartedAt >= dateFrom.Value.ToUniversalTime());
+
+        if (dateTo.HasValue)
+        {
+            var endOfDay = dateTo.Value.Date.AddDays(1).AddTicks(-1).ToUniversalTime();
+            query = query.Where(a => a.StartedAt <= endOfDay);
+        }
+
+        if (hasScore == true)
+            query = query.Where(a => a.ScorePercent != null);
+        else if (hasScore == false)
+            query = query.Where(a => a.ScorePercent == null);
+
+        if (minScore.HasValue)
+            query = query.Where(a => a.ScorePercent != null && a.ScorePercent >= minScore.Value);
+
+        var attempts = await query
             .OrderByDescending(a => a.StartedAt)
             .ToListAsync();
+
+        ViewBag.UserName = userName;
+        ViewBag.Topic = topic;
+        ViewBag.Type = type;
+        ViewBag.DateFrom = dateFrom?.ToString("yyyy-MM-dd");
+        ViewBag.DateTo = dateTo?.ToString("yyyy-MM-dd");
+        ViewBag.MinScore = minScore;
+        ViewBag.HasScore = hasScore;
 
         return View(attempts);
     }

@@ -1,4 +1,4 @@
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 /// <summary>
 /// Статистика по одному тесту для пользователя.

@@ -1,6 +1,6 @@
 using System;
 
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 public class TestAttempt
 {

@@ -1,4 +1,4 @@
-@model QuizApp.Models.TestAttempt
+@model HomeCenter.Models.TestAttempt
 @using System.Text.Json
 
 @functions {
@@ -61,13 +61,13 @@ else
             <tr>
                 <th style="width: 5%">№</th>
                 <th style="width: 35%">Вопрос</th>
-                @if (topic.Type == QuizApp.Models.TopicType.Test)
+                @if (topic.Type == HomeCenter.Models.TopicType.Test)
                 {
                     <th style="width: 25%">Ваш ответ</th>
                     <th style="width: 25%">Правильный ответ</th>
                     <th style="width: 10%">Статус</th>
                 }
-                else if (topic.Type == QuizApp.Models.TopicType.Open)
+                else if (topic.Type == HomeCenter.Models.TopicType.Open)
                 {
                     <th style="width: 25%">Ваш ответ</th>
                     <th style="width: 25%">Правильный ответ</th>
@@ -92,7 +92,7 @@ else
                         <td>@questionNum</td>
                         <td>@(elem.TryGetProperty("Question", out var qProp) ? qProp.GetString() : "—")</td>
                         
-                        @if (topic.Type == QuizApp.Models.TopicType.Test)
+                        @if (topic.Type == HomeCenter.Models.TopicType.Test)
                         {
                             var selected = elem.TryGetProperty("Selected", out var sel) ? sel.GetString() : "Не выбран";
                             var correct = elem.TryGetProperty("Correct", out var cor) ? cor.GetString() : "Не указан";
@@ -111,7 +111,7 @@ else
                                 }
                             </td>
                         }
-                        else if (topic.Type == QuizApp.Models.TopicType.Open)
+                        else if (topic.Type == HomeCenter.Models.TopicType.Open)
                         {
                             var answer = GetJsonString(elem, "Answer") ?? "Нет ответа";
                             var correct = GetJsonString(elem, "Correct");
@@ -159,7 +159,7 @@ else
     </table>
 }
 
-@if (User.IsInRole("Admin") && topic != null && topic.Type == QuizApp.Models.TopicType.Open && details != null && details.Cast<object>().Any())
+@if (User.IsInRole("Admin") && topic != null && topic.Type == HomeCenter.Models.TopicType.Open && details != null && details.Cast<object>().Any())
 {
     <hr />
     <h4>Проставить оценки (админ)</h4>

@@ -1,6 +1,6 @@
-using QuizApp.Data;
-using QuizApp.Extensions;
-using QuizApp.Services;
+using HomeCenter.Data;
+using HomeCenter.Extensions;
+using HomeCenter.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

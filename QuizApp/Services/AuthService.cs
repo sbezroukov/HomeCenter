@@ -2,9 +2,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
-using QuizApp.Models;
+using HomeCenter.Models;
 
-namespace QuizApp.Services;
+namespace HomeCenter.Services;
 
 public class AuthService : IAuthService
 {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 public class AnswerOption
 {

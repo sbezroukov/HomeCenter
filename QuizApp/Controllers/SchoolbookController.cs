@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using QuizApp.Models;
-using QuizApp.Utils;
+using HomeCenter.Models;
+using HomeCenter.Utils;
 
-namespace QuizApp.Controllers;
+namespace HomeCenter.Controllers;
 
 [Authorize]
 public class SchoolbookController : Controller

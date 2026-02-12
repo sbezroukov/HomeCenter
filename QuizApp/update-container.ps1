@@ -1,5 +1,5 @@
-# Обновление приложения QuizApp в контейнере.
-# Запускайте из папки QuizApp (где лежит docker-compose.yml).
+# Обновление приложения HomeCenter в контейнере.
+# Запускайте из папки HomeCenter (где лежит docker-compose.yml).
 # Подробнее: DOCKER-UPDATE.md
 
 param(

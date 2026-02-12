@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.IO;
-using QuizApp.Utils;
+using HomeCenter.Utils;
 
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 public enum TopicType
 {

@@ -1,21 +1,17 @@
 using Microsoft.Extensions.Caching.Memory;
-using QuizApp.Models;
+using HomeCenter.Models;
 
-namespace QuizApp.Services;
+namespace HomeCenter.Services;
 
-/// <summary>
-/// Обёртка над ITestFileService с кэшированием вызовов SyncTopicsFromFiles.
-/// Повторные вызовы в течение TTL пропускаются.
-/// </summary>
 public class CachedTestFileService : ITestFileService
 {
-    private const string CacheKey = "QuizApp:TopicsSync";
+    private const string CacheKey = "HomeCenter:TopicsSync";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(2);
 
     private readonly ITestFileService _inner;
     private readonly IMemoryCache _cache;
 
-    public CachedTestFileService(ITestFileService inner, IMemoryCache cache)
+    public CachedTestFileService(TestFileService inner, IMemoryCache cache)
     {
         _inner = inner;
         _cache = cache;

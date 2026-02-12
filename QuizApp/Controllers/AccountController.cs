@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QuizApp.Data;
-using QuizApp.Models;
-using QuizApp.Services;
+using HomeCenter.Data;
+using HomeCenter.Models;
+using HomeCenter.Services;
 
-namespace QuizApp.Controllers;
+namespace HomeCenter.Controllers;
 
 public class AccountController : Controller
 {

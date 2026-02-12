@@ -1,4 +1,4 @@
-namespace QuizApp.Extensions;
+namespace HomeCenter.Extensions;
 
 public static class WebApplicationExtensions
 {

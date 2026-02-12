@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace QuizApp.Models;
+namespace HomeCenter.Models;
 
 public class LoginViewModel
 {

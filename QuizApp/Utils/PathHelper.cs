@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace QuizApp.Utils;
+namespace HomeCenter.Utils;
 
 /// <summary>
 /// Утилита для работы с путями. Приводит пути к формату текущей ОС.

@@ -1,7 +1,7 @@
-using QuizApp.Utils;
+using HomeCenter.Utils;
 using Xunit;
 
-namespace QuizApp.Tests;
+namespace HomeCenter.Tests;
 
 public class PathHelperTests
 {

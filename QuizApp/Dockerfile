@@ -1,14 +1,14 @@
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["QuizApp.csproj", "./"]
-RUN dotnet restore "QuizApp.csproj"
+COPY ["HomeCenter.csproj", "./"]
+RUN dotnet restore "HomeCenter.csproj"
 COPY . .
-RUN dotnet publish "QuizApp.csproj" -c Release -o /app/publish
+RUN dotnet publish "HomeCenter.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
@@ -17,5 +17,5 @@ COPY tests ./tests
 COPY Schoolbook ./Schoolbook
 COPY TEST-IMPORT-FORMAT.md .
 VOLUME ["/app/data"]
-ENTRYPOINT ["dotnet", "QuizApp.dll"]
+ENTRYPOINT ["dotnet", "HomeCenter.dll"]
 
