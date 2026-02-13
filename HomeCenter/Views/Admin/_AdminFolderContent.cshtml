@@ -1,9 +1,17 @@
 @model IEnumerable<HomeCenter.Models.Topic>
 @using HomeCenter.Models
+@using System.IO
 @{
     var currentFolder = ViewBag.CurrentFolderPath as string ?? "";
     var includeSubfolders = ViewBag.IncludeSubfolders as bool? ?? true;
     var folderDisplay = ViewBag.FolderDisplay as string ?? "Все темы";
+}
+@functions {
+    string GetFileName(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath)) return "";
+        return Path.GetFileName(filePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar));
+    }
 }
 <div class="admin-folder-data" data-current-folder="@currentFolder" data-include-subfolders="@(includeSubfolders ? "true" : "false")">
 <h2 class="card-title h5 mb-3">@folderDisplay</h2>
@@ -56,7 +64,7 @@
             {
                 <tr data-topic-id="@t.Id" class="@(t.IsDeleted ? "table-secondary" : "")">
                     <td>@t.DisplayPath</td>
-                    <td>@t.FileName</td>
+                    <td><span title="@t.FileName">@GetFileName(t.FileName)</span></td>
                     <td>@t.TypeDisplayName</td>
                     <td class="js-access-status">@(t.IsEnabled ? "Да" : "Нет")</td>
                     <td>

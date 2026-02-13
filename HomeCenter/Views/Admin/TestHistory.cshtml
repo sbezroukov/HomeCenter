@@ -1,5 +1,6 @@
 @model IEnumerable<HomeCenter.Models.TestHistoryEntry>
 @using HomeCenter.Models
+@using System.IO
 
 @{
     ViewData["Title"] = "История тестов";
@@ -86,6 +87,12 @@
             _ => "bg-secondary"
         };
     }
+    
+    string GetFileName(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath)) return "";
+        return Path.GetFileName(filePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar));
+    }
 }
 
 @if (!Model.Any())
@@ -112,7 +119,7 @@ else
                     <tr>
                         <td>@h.Timestamp.ToLocalTime().ToString("dd.MM.yyyy HH:mm:ss")</td>
                         <td><span class="badge @ActionBadgeClass(h.Action)">@ActionDisplayName(h.Action)</span></td>
-                        <td><code class="small">@h.FileName</code></td>
+                        <td><code class="small" title="@h.FileName">@GetFileName(h.FileName)</code></td>
                         <td>@(string.IsNullOrEmpty(h.FolderPath) ? "—" : h.FolderPath)</td>
                         <td>
                             @if (!string.IsNullOrEmpty(h.Content))
@@ -124,7 +131,7 @@ else
                                     <div class="modal-dialog modal-xl">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">@h.FileName</h5>
+                                                <h5 class="modal-title" title="@h.FileName">@GetFileName(h.FileName)</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body">
