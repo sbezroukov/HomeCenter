@@ -18,6 +18,20 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/quiz.db
+      # Admin credentials
+      - Admin__Username=${ADMIN_USERNAME:-admin}
+      - Admin__Password=${ADMIN_PASSWORD:-change-me}
+      # AI Configuration
+      - AI__Provider=${AI_PROVIDER:-OpenRouter}
+      - AI__ApiKey=${AI_API_KEY}
+      - AI__Enabled=${AI_ENABLED:-true}
+      - AI__Model=${AI_MODEL:-openrouter/free}
+      - AI__BaseUrl=${AI_BASE_URL:-https://openrouter.ai/api/v1}
+      # Qwen Configuration (optional)
+      - Qwen__ApiKey=${QWEN_API_KEY}
+      - Qwen__Enabled=${QWEN_ENABLED:-false}
+      - Qwen__Model=${QWEN_MODEL:-qwen-turbo}
+      - Qwen__BaseUrl=${QWEN_BASE_URL:-https://dashscope-intl.aliyuncs.com/api/v1}
 
 volumes:
   quizdb:

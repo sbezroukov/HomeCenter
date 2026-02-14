@@ -109,8 +109,46 @@ dotnet test --filter "Category=Integration"
 
 Подробнее: [docs/ASYNC_GRADING.md](docs/ASYNC_GRADING.md), [docs/LOADING_INDICATOR.md](docs/LOADING_INDICATOR.md)
 
+## Настройка конфигурации
+
+Все секреты (пароли, API ключи) хранятся в `.env` файле:
+
+```bash
+cd HomeCenter
+cp .env.example .env
+# Отредактируйте .env и укажите свои значения
+```
+
+Этот файл работает как для локальной разработки (`dotnet run`), так и для Docker (`docker-compose up`).
+
+### Быстрая проверка конфигурации
+
+После запуска проверьте логи:
+
+```bash
+# Для Docker
+docker-compose logs homecenter
+
+# Для локального запуска - смотрите консоль
+```
+
+Вы увидите:
+```
+=== Configuration Status ===
+Admin Username: admin
+Admin Password: SET (length: 20)
+AI ApiKey: SET (length: 67, starts with: sk-or-v1-9...)
+```
+
+Если видите "NOT SET" — значит параметры не заданы!
+
+## Docker
+
+Для запуска в Docker см. **[HomeCenter/DOCKER-SETUP.md](HomeCenter/DOCKER-SETUP.md)**
+
 ## Документация
 
+- **[HomeCenter/DOCKER-SETUP.md](HomeCenter/DOCKER-SETUP.md)** — запуск в Docker, настройка переменных окружения
 - **[docs/AI_SETUP.md](docs/AI_SETUP.md)** — настройка AI для автоматической оценки ответов
 - **[docs/ASYNC_GRADING.md](docs/ASYNC_GRADING.md)** — асинхронная обработка AI оценок
 - **[docs/LOADING_INDICATOR.md](docs/LOADING_INDICATOR.md)** — глобальный индикатор загрузки
