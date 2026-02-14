@@ -1,0 +1,14 @@
+# Build results
+bin/
+obj/
+
+# Backups directory
+backups/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Rider
+.idea/

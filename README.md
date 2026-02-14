@@ -146,11 +146,78 @@ AI ApiKey: SET (length: 67, starts with: sk-or-v1-9...)
 
 Для запуска в Docker см. **[HomeCenter/DOCKER-SETUP.md](HomeCenter/DOCKER-SETUP.md)**
 
+### Бэкап базы данных SQLite
+
+#### Вариант 1: GUI приложение (Рекомендуется)
+
+Windows Forms приложение с графическим интерфейсом:
+
+```bash
+cd HomeCenterBackup
+dotnet run
+
+# Или собрать exe:
+dotnet build
+.\bin\Debug\net8.0-windows\HomeCenterBackup.exe
+```
+
+**Возможности:**
+
+**Бэкапы:**
+- Создание бэкапа одной кнопкой
+- Восстановление из любого бэкапа
+- Просмотр списка всех бэкапов
+- Удаление и очистка старых бэкапов
+
+**Docker управление:**
+- Проверка статуса контейнера
+- Остановка/запуск/перезапуск
+- Просмотр логов
+
+**Сборка приложения:**
+- Быстрая пересборка (1-2 мин)
+- Полная пересборка (2-3 мин)
+- Пересборка без кэша (5-10 мин)
+- Обновление базовых образов
+- Очистка старых образов
+
+**Общее:**
+- Лог операций в реальном времени
+- Прогресс-бар для длительных операций
+- Подтверждение опасных операций
+
+Подробнее: **[HomeCenterBackup/README.md](HomeCenterBackup/README.md)** | **[HomeCenterBackup/FEATURES.md](HomeCenterBackup/FEATURES.md)**
+
+#### Вариант 2: PowerShell скрипты
+
+Простая система резервного копирования через командную строку:
+
+```powershell
+cd HomeCenter
+
+# Создать бэкап прямо сейчас
+.\scripts\backup.ps1
+
+# Посмотреть список бэкапов
+.\scripts\list-backups.ps1
+
+# Восстановить из последнего бэкапа
+.\scripts\restore.ps1
+
+# Настроить автоматический бэкап (ежедневно в 2:00)
+# Запустить PowerShell от имени Администратора
+.\scripts\auto-backup.ps1
+```
+
+Подробнее: **[HomeCenter/BACKUP-GUIDE.md](HomeCenter/BACKUP-GUIDE.md)**
+
 ## Документация
 
 - **[HomeCenter/DOCKER-SETUP.md](HomeCenter/DOCKER-SETUP.md)** — запуск в Docker, настройка переменных окружения
+- **[HomeCenter/BACKUP-GUIDE.md](HomeCenter/BACKUP-GUIDE.md)** — бэкап и восстановление SQLite в Docker Desktop
 - **[docs/AI_SETUP.md](docs/AI_SETUP.md)** — настройка AI для автоматической оценки ответов
 - **[docs/ASYNC_GRADING.md](docs/ASYNC_GRADING.md)** — асинхронная обработка AI оценок
 - **[docs/LOADING_INDICATOR.md](docs/LOADING_INDICATOR.md)** — глобальный индикатор загрузки
 - **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** — настройка секретов, User Secrets, деплой в Kubernetes
 - **[docs/TESTING.md](docs/TESTING.md)** — запуск тестов
+- **[k8s/BACKUP-GUIDE.md](k8s/BACKUP-GUIDE.md)** — бэкап SQLite в Kubernetes (если используете)

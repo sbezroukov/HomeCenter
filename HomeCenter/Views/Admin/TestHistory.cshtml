@@ -91,7 +91,7 @@
     string GetFileName(string filePath)
     {
         if (string.IsNullOrEmpty(filePath)) return "";
-        return Path.GetFileName(filePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar));
+        return System.IO.Path.GetFileName(filePath.Replace('/', System.IO.Path.DirectorySeparatorChar).Replace('\\', System.IO.Path.DirectorySeparatorChar));
     }
 }
 

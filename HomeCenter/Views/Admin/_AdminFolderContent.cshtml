@@ -10,7 +10,7 @@
     string GetFileName(string filePath)
     {
         if (string.IsNullOrEmpty(filePath)) return "";
-        return Path.GetFileName(filePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar));
+        return System.IO.Path.GetFileName(filePath.Replace('/', System.IO.Path.DirectorySeparatorChar).Replace('\\', System.IO.Path.DirectorySeparatorChar));
     }
 }
 <div class="admin-folder-data" data-current-folder="@currentFolder" data-include-subfolders="@(includeSubfolders ? "true" : "false")">
