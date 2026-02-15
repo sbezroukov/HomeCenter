@@ -25,6 +25,10 @@
    docker-compose up -d --build
    ```
 
+4. Откройте приложение:
+   - **HomeCenter:** http://localhost:8080
+   - **SQLite Web (просмотр БД):** http://localhost:8050
+
 **Важно:** `.env` файл добавлен в `.gitignore` и не будет коммититься в репозиторий!
 
 ## Локальная разработка
@@ -148,6 +152,56 @@ AI__ApiKey=sk-or-v1-your-key-here
 3. Переменные окружения (из `.env` файла)
 
 Переменные окружения имеют наивысший приоритет!
+
+## SQLite Web - Просмотр и редактирование базы данных
+
+Docker Compose автоматически запускает **sqlite-web** - веб-интерфейс для работы с базой данных.
+
+### Доступ:
+
+Откройте в браузере: http://localhost:8050
+
+### Возможности:
+
+- ✅ Просмотр всех таблиц и данных
+- ✅ Выполнение SQL запросов
+- ✅ Редактирование записей
+- ✅ Экспорт данных в CSV/JSON
+- ✅ Просмотр структуры таблиц
+- ✅ Создание индексов
+
+### Основные таблицы:
+
+- **Topics** - темы тестов
+- **Attempts** - попытки прохождения тестов
+- **SchemaVersions** - версии схемы БД
+
+### Примеры SQL запросов:
+
+```sql
+-- Все попытки с оценками
+SELECT * FROM Attempts ORDER BY StartedAt DESC LIMIT 10;
+
+-- Статистика по темам
+SELECT TopicId, COUNT(*) as AttemptsCount, AVG(ScorePercent) as AvgScore
+FROM Attempts
+GROUP BY TopicId;
+
+-- Попытки с ошибками AI
+SELECT * FROM Attempts WHERE GradingStatus = 2; -- 2 = Failed
+
+-- Последние обработанные попытки
+SELECT * FROM Attempts WHERE GradingStatus = 3 ORDER BY LastUpdatedAt DESC LIMIT 10;
+```
+
+### Безопасность:
+
+⚠️ **Важно:** sqlite-web доступен только локально (localhost:8050). Не открывайте порт 8050 для внешнего доступа в продакшене!
+
+Для продакшена рекомендуется:
+1. Удалить сервис `sqlite-web` из `docker-compose.yml`
+2. Или добавить аутентификацию
+3. Или использовать только для разработки
 
 ## Бэкап базы данных
 

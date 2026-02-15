@@ -28,7 +28,9 @@ cd HomeCenter
 docker compose up -d --build
 ```
 
-Приложение доступно по http://localhost:8080
+Приложение доступно по:
+- **HomeCenter:** http://localhost:8080
+- **SQLite Web (просмотр БД):** http://localhost:8050
 
 ## Настройка AI для оценки открытых ответов
 
@@ -216,6 +218,7 @@ cd HomeCenter
 ### Настройка и запуск
 - **[HomeCenter/DOCKER-SETUP.md](HomeCenter/DOCKER-SETUP.md)** — запуск в Docker, настройка переменных окружения
 - **[HomeCenter/ENV-SETUP-TEST.md](HomeCenter/ENV-SETUP-TEST.md)** — тестирование настройки .env файла
+- **[HomeCenter/SQLITE-WEB-GUIDE.md](HomeCenter/SQLITE-WEB-GUIDE.md)** — работа с базой данных через веб-интерфейс
 - **[HomeCenter/BACKUP-GUIDE.md](HomeCenter/BACKUP-GUIDE.md)** — бэкап и восстановление SQLite в Docker Desktop
 
 ### AI и оценка ответов

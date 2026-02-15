@@ -33,5 +33,19 @@ services:
       - Qwen__Model=${Qwen__Model:-qwen-turbo}
       - Qwen__BaseUrl=${Qwen__BaseUrl:-https://dashscope-intl.aliyuncs.com/api/v1}
 
+  sqlite-web:
+    image: coleifer/sqlite-web
+    container_name: homecenter-sqlite-web
+    ports:
+      - "8050:8080"
+    restart: unless-stopped
+    volumes:
+      - quizdb:/data
+    environment:
+      - SQLITE_DATABASE=quiz.db
+    command: ["-H", "0.0.0.0", "-x", "/data/quiz.db"]
+    depends_on:
+      - homecenter
+
 volumes:
   quizdb:
