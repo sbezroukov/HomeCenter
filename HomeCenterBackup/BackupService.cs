@@ -4,11 +4,13 @@ public class BackupService
 {
     private readonly DockerService _dockerService;
     private readonly string _backupDirectory;
+    private readonly string _projectPath;
 
-    public BackupService(DockerService dockerService, string backupDirectory)
+    public BackupService(DockerService dockerService, string backupDirectory, string projectPath)
     {
         _dockerService = dockerService;
         _backupDirectory = backupDirectory;
+        _projectPath = projectPath;
 
         // Создать директорию для бэкапов если не существует
         if (!Directory.Exists(_backupDirectory))
@@ -94,7 +96,7 @@ public class BackupService
 
         // Остановить контейнер
         progress?.Report("Остановка контейнера...");
-        await _dockerService.StopContainerAsync(containerName);
+        await _dockerService.StopContainerAsync(containerName, _projectPath);
         await Task.Delay(2000); // Подождать 2 секунды
 
         try
@@ -109,7 +111,7 @@ public class BackupService
         {
             // Запустить контейнер обратно
             progress?.Report("Запуск контейнера...");
-            await _dockerService.StartContainerAsync(containerName);
+            await _dockerService.StartContainerAsync(containerName, _projectPath);
             await Task.Delay(3000); // Подождать 3 секунды
         }
 

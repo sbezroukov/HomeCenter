@@ -44,7 +44,7 @@ public partial class MainFormExtended : Form
         _backupDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backups");
         _projectPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "HomeCenter");
         _dockerService = new DockerService();
-        _backupService = new BackupService(_dockerService, _backupDirectory);
+        _backupService = new BackupService(_dockerService, _backupDirectory, _projectPath);
 
         InitializeComponent();
         InitializeCustomComponents();
@@ -785,7 +785,7 @@ public partial class MainFormExtended : Form
         try
         {
             Log("Остановка контейнера...");
-            await _dockerService.StopContainerAsync(txtContainerName.Text.Trim());
+            await _dockerService.StopContainerAsync(txtContainerName.Text.Trim(), txtProjectPath.Text);
             Log("✓ Контейнер остановлен");
             await UpdateContainerStatusAsync();
         }
@@ -808,7 +808,7 @@ public partial class MainFormExtended : Form
         try
         {
             Log("Запуск контейнера...");
-            await _dockerService.StartContainerAsync(txtContainerName.Text.Trim());
+            await _dockerService.StartContainerAsync(txtContainerName.Text.Trim(), txtProjectPath.Text);
             Log("✓ Контейнер запущен");
             await Task.Delay(2000);
             await UpdateContainerStatusAsync();
@@ -832,13 +832,13 @@ public partial class MainFormExtended : Form
         try
         {
             Log("Остановка контейнера...");
-            await _dockerService.StopContainerAsync(txtContainerName.Text.Trim());
+            await _dockerService.StopContainerAsync(txtContainerName.Text.Trim(), txtProjectPath.Text);
             Log("✓ Контейнер остановлен");
             
             await Task.Delay(2000);
             
             Log("Запуск контейнера...");
-            await _dockerService.StartContainerAsync(txtContainerName.Text.Trim());
+            await _dockerService.StartContainerAsync(txtContainerName.Text.Trim(), txtProjectPath.Text);
             Log("✓ Контейнер запущен");
             
             await Task.Delay(2000);
