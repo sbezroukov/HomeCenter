@@ -42,8 +42,7 @@ services:
     volumes:
       - quizdb:/data
     environment:
-      - SQLITE_DATABASE=quiz.db
-    command: ["-H", "0.0.0.0", "-x", "/data/quiz.db"]
+      - SQLITE_DATABASE=/data/quiz.db
     depends_on:
       - homecenter
 
