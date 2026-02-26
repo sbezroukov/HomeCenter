@@ -38,9 +38,9 @@ public class BackupService
             throw new Exception($"База данных не найдена: {databasePath}");
         }
 
-        // Создать имя файла с датой и временем
-        var timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
-        var fileName = $"quiz-{timestamp}.db";
+        // Создать имя файла с датой и временем (понятный формат)
+        var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        var fileName = $"quiz_{timestamp}.db";
         var backupPath = Path.Combine(_backupDirectory, fileName);
 
         progress?.Report($"Создание бэкапа: {fileName}");
@@ -83,10 +83,10 @@ public class BackupService
             var currentSize = await _dockerService.GetFileSizeInContainerAsync(containerName, databasePath);
             if (currentSize > 0)
             {
-                var timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
-                var safetyBackupPath = Path.Combine(_backupDirectory, $"quiz-before-restore-{timestamp}.db");
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                var safetyBackupPath = Path.Combine(_backupDirectory, $"quiz_before-restore_{timestamp}.db");
                 await _dockerService.CopyFileFromContainerAsync(containerName, databasePath, safetyBackupPath);
-                progress?.Report($"✓ Текущая база сохранена: quiz-before-restore-{timestamp}.db");
+                progress?.Report($"✓ Текущая база сохранена: quiz_before-restore_{timestamp}.db");
             }
         }
         catch
@@ -125,7 +125,11 @@ public class BackupService
             return new List<BackupInfo>();
         }
 
-        return Directory.GetFiles(_backupDirectory, "quiz-*.db")
+        // Поддержка старого формата (quiz-*.db) и нового (quiz_*.db)
+        var oldFormatFiles = Directory.GetFiles(_backupDirectory, "quiz-*.db");
+        var newFormatFiles = Directory.GetFiles(_backupDirectory, "quiz_*.db");
+        
+        return oldFormatFiles.Concat(newFormatFiles)
             .Select(path => new BackupInfo
             {
                 FilePath = path,
