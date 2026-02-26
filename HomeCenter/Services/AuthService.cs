@@ -2,6 +2,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using HomeCenter.Data;
 using HomeCenter.Models;
 
 namespace HomeCenter.Services;
@@ -9,10 +11,12 @@ namespace HomeCenter.Services;
 public class AuthService : IAuthService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ApplicationDbContext _context;
 
-    public AuthService(IHttpContextAccessor httpContextAccessor)
+    public AuthService(IHttpContextAccessor httpContextAccessor, ApplicationDbContext context)
     {
         _httpContextAccessor = httpContextAccessor;
+        _context = context;
     }
 
     public async Task SignInAsync(ApplicationUser user, string role)
@@ -44,5 +48,19 @@ public class AuthService : IAuthService
         if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
             return null;
         return userId;
+    }
+
+    public async Task<ApplicationUser?> GetCurrentUserAsync(ClaimsPrincipal user)
+    {
+        var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+            return null;
+
+        return await _context.Users.FindAsync(userId);
+    }
+
+    public async Task<List<ApplicationUser>> GetAllUsersAsync()
+    {
+        return await _context.Users.OrderBy(u => u.UserName).ToListAsync();
     }
 }

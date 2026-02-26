@@ -28,6 +28,15 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Schoolbook" asp-action="Index">Учебники</a>
                         </li>
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Calendar" asp-action="Index">📅 Календарь</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Calendar" asp-action="Statistics">📊 Статистика</a>
+                            </li>
+                        }
                         @if (User.IsInRole("Admin"))
                         {
                             <li class="nav-item">
@@ -38,6 +47,9 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Admin" asp-action="TestHistory">История тестов</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="ActivityType" asp-action="Index">Типы деятельности</a>
                             </li>
                         }
                     </ul>

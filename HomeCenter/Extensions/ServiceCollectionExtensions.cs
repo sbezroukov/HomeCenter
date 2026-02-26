@@ -37,8 +37,13 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITestHistoryService, TestHistoryService>();
         services.AddScoped<IOpenAnswerGradingService, OpenAnswerGradingService>();
 
-        // Регистрируем фоновый сервис для асинхронной обработки AI оценок
+        // Регистрируем сервисы календаря
+        services.AddScoped<ICalendarService, CalendarService>();
+        services.AddSingleton<ITelegramNotificationService, TelegramNotificationService>();
+
+        // Регистрируем фоновые сервисы
         services.AddHostedService<BackgroundGradingService>();
+        services.AddHostedService<CalendarNotificationBackgroundService>();
 
         return services;
     }

@@ -35,6 +35,116 @@ public static class DatabaseMigrator
         }
         
         AddColumnIfNotExists(db, "Attempts", "GradingError", "TEXT");
+
+        // Добавляем поле для Telegram Chat ID в Users
+        AddColumnIfNotExists(db, "Users", "TelegramChatId", "INTEGER");
+
+        // Создаём таблицы для календаря
+        EnsureCalendarSchema(db);
+    }
+
+    /// <summary>
+    /// Создаёт таблицы для функционала календаря
+    /// </summary>
+    private static void EnsureCalendarSchema(ApplicationDbContext db)
+    {
+        // Таблица типов деятельности
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS ActivityTypes (
+                Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                Name TEXT NOT NULL,
+                Description TEXT,
+                Color TEXT NOT NULL DEFAULT '#007bff',
+                IsActive INTEGER NOT NULL DEFAULT 1,
+                CreatedAt TEXT NOT NULL,
+                UpdatedAt TEXT
+            )");
+
+        // Таблица запланированных активностей
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS ScheduledActivities (
+                Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                ActivityTypeId INTEGER NOT NULL,
+                Title TEXT,
+                Description TEXT,
+                StartDate TEXT NOT NULL,
+                StartTime TEXT,
+                EndTime TEXT,
+                DeadlineDateTime TEXT,
+                AssignedToUserId INTEGER,
+                CreatedByUserId INTEGER NOT NULL,
+                IsRecurring INTEGER NOT NULL DEFAULT 0,
+                RecurringDayOfWeek INTEGER,
+                IsActive INTEGER NOT NULL DEFAULT 1,
+                CreatedAt TEXT NOT NULL,
+                UpdatedAt TEXT,
+                FOREIGN KEY (ActivityTypeId) REFERENCES ActivityTypes(Id),
+                FOREIGN KEY (AssignedToUserId) REFERENCES Users(Id),
+                FOREIGN KEY (CreatedByUserId) REFERENCES Users(Id)
+            )");
+
+        // Таблица отметок о выполнении
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS ActivityCompletions (
+                Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                ScheduledActivityId INTEGER NOT NULL,
+                CompletedByUserId INTEGER NOT NULL,
+                Status INTEGER NOT NULL,
+                Comment TEXT,
+                CompletedAt TEXT NOT NULL,
+                IsOnTime INTEGER NOT NULL DEFAULT 1,
+                FOREIGN KEY (ScheduledActivityId) REFERENCES ScheduledActivities(Id) ON DELETE CASCADE,
+                FOREIGN KEY (CompletedByUserId) REFERENCES Users(Id)
+            )");
+
+        // Создаём индексы
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_ActivityTypes_Name ON ActivityTypes(Name)");
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_ScheduledActivities_StartDate ON ScheduledActivities(StartDate)");
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_ScheduledActivities_DeadlineDateTime ON ScheduledActivities(DeadlineDateTime)");
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_ActivityCompletions_CompletedAt ON ActivityCompletions(CompletedAt)");
+
+        // Добавляем новые поля в существующие таблицы
+        AddColumnIfNotExists(db, "ScheduledActivities", "TestTopicId", "INTEGER");
+        AddColumnIfNotExists(db, "ActivityCompletions", "IsApprovedBySupervisor", "INTEGER NOT NULL DEFAULT 0");
+        AddColumnIfNotExists(db, "ActivityCompletions", "ApprovedByUserId", "INTEGER");
+        AddColumnIfNotExists(db, "ActivityCompletions", "ApprovedAt", "TEXT");
+        AddColumnIfNotExists(db, "ActivityCompletions", "TestAttemptId", "INTEGER");
+
+        // Таблица фотографий активностей
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS ActivityPhotos (
+                Id INTEGER NOT NULL PRIMARY AUTOINCREMENT,
+                ScheduledActivityId INTEGER NOT NULL,
+                UploadedByUserId INTEGER NOT NULL,
+                FilePath TEXT NOT NULL,
+                OriginalFileName TEXT,
+                FileSize INTEGER NOT NULL,
+                ContentType TEXT,
+                Description TEXT,
+                UploadedAt TEXT NOT NULL,
+                FOREIGN KEY (ScheduledActivityId) REFERENCES ScheduledActivities(Id) ON DELETE CASCADE,
+                FOREIGN KEY (UploadedByUserId) REFERENCES Users(Id)
+            )");
+
+        // Таблица комментариев к активностям
+        db.Database.ExecuteSqlRaw(@"
+            CREATE TABLE IF NOT EXISTS ActivityComments (
+                Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                ScheduledActivityId INTEGER NOT NULL,
+                AuthorUserId INTEGER NOT NULL,
+                Text TEXT NOT NULL,
+                ParentCommentId INTEGER,
+                CreatedAt TEXT NOT NULL,
+                UpdatedAt TEXT,
+                IsDeleted INTEGER NOT NULL DEFAULT 0,
+                FOREIGN KEY (ScheduledActivityId) REFERENCES ScheduledActivities(Id) ON DELETE CASCADE,
+                FOREIGN KEY (AuthorUserId) REFERENCES Users(Id),
+                FOREIGN KEY (ParentCommentId) REFERENCES ActivityComments(Id)
+            )");
+
+        // Индексы для новых таблиц
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_ActivityPhotos_UploadedAt ON ActivityPhotos(UploadedAt)");
+        db.Database.ExecuteSqlRaw("CREATE INDEX IF NOT EXISTS IX_ActivityComments_CreatedAt ON ActivityComments(CreatedAt)");
     }
 
     /// <summary>

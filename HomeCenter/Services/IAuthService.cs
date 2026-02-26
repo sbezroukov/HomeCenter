@@ -18,4 +18,14 @@ public interface IAuthService
     /// Возвращает Id текущего пользователя или null.
     /// </summary>
     int? GetCurrentUserId();
+
+    /// <summary>
+    /// Получить текущего пользователя
+    /// </summary>
+    Task<ApplicationUser?> GetCurrentUserAsync(System.Security.Claims.ClaimsPrincipal user);
+
+    /// <summary>
+    /// Получить всех пользователей
+    /// </summary>
+    Task<List<ApplicationUser>> GetAllUsersAsync();
 }
