@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Configuration;
 
 namespace HomeCenterBackup;
 
@@ -41,7 +42,7 @@ public partial class MainFormExtended : Form
 
     public MainFormExtended()
     {
-        _backupDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backups");
+        _backupDirectory = ConfigurationManager.AppSettings["backupPath"] ?? Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backups");        
         _projectPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "HomeCenter");
         _dockerService = new DockerService();
         _backupService = new BackupService(_dockerService, _backupDirectory, _projectPath);

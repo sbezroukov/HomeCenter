@@ -1,11 +1,12 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.1.32421.90
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11505.172 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeCenter", "HomeCenter\HomeCenter.csproj", "{1ED71C1A-E9B6-489D-9770-513C2684E72D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeCenter.Tests", "HomeCenter.Tests\HomeCenter.Tests.csproj", "{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeCenterBackup", "HomeCenterBackup\HomeCenterBackup.csproj", "{32C9CB71-615E-4833-A4DC-7B6C94A251BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +22,10 @@ Global
 		{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
