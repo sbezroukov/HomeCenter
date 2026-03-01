@@ -6,7 +6,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomeCenter", "HomeCenter\Ho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeCenter.Tests", "HomeCenter.Tests\HomeCenter.Tests.csproj", "{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeCenterBackup", "HomeCenterBackup\HomeCenterBackup.csproj", "{32C9CB71-615E-4833-A4DC-7B6C94A251BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomeCenter.TestsGenerator", "HomeCenter.TestsGenerator\HomeCenter.TestsGenerator.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567891}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,10 +22,12 @@ Global
 		{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20BAE1A2-63FC-46FA-BDD5-C0DBB2B0618A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32C9CB71-615E-4833-A4DC-7B6C94A251BC}.Release|Any CPU.Build.0 = Release|Any CPU
+
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567891}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567891}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567891}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567891}.Release|Any CPU.Build.0 = Release|Any CPU
+26db699b3515841f56689
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

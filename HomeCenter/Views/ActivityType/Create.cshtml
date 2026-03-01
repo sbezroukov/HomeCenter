@@ -1,0 +1,67 @@
+@model ActivityTypeViewModel
+@{
+    ViewData["Title"] = "Создать тип деятельности";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="mb-4">Создать новый тип деятельности</h2>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Color" class="form-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Color" type="color" class="form-control form-control-color" required />
+                        <input asp-for="Color" type="text" class="form-control" placeholder="#007bff" pattern="^#[0-9A-Fa-f]{6}$" />
+                    </div>
+                    <span asp-validation-for="Color" class="text-danger"></span>
+                    <small class="form-text text-muted">Цвет для отображения в календаре</small>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                    <label asp-for="IsActive" class="form-check-label"></label>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Синхронизация color picker и text input
+        const colorPicker = document.querySelector('input[type="color"]');
+        const colorText = document.querySelector('input[type="text"][pattern]');
+        
+        colorPicker.addEventListener('input', function() {
+            colorText.value = this.value;
+        });
+        
+        colorText.addEventListener('input', function() {
+            if (this.value.match(/^#[0-9A-Fa-f]{6}$/)) {
+                colorPicker.value = this.value;
+            }
+        });
+    </script>
+}

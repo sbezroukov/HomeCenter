@@ -1,0 +1,112 @@
+@model CreateEditActivityViewModel
+@{
+    ViewData["Title"] = "Создать активность";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mb-4">Создать новую активность</h2>
+
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="ActivityTypeId" class="form-label"></label>
+                    <select asp-for="ActivityTypeId" class="form-select" required>
+                        <option value="">-- Выберите тип деятельности --</option>
+                        @foreach (var type in Model.AvailableActivityTypes)
+                        {
+                            <option value="@type.Id">@type.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ActivityTypeId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label"></label>
+                    <input asp-for="Title" class="form-control" placeholder="Оставьте пустым, чтобы использовать название типа" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="StartDate" class="form-label"></label>
+                        <input asp-for="StartDate" type="date" class="form-control" required />
+                        <span asp-validation-for="StartDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="StartTime" class="form-label"></label>
+                        <input asp-for="StartTime" type="time" class="form-control" />
+                        <span asp-validation-for="StartTime" class="text-danger"></span>
+                        <small class="form-text text-muted">Пусто = весь день</small>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label asp-for="EndTime" class="form-label"></label>
+                        <input asp-for="EndTime" type="time" class="form-control" />
+                        <span asp-validation-for="EndTime" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="DeadlineDateTime" class="form-label"></label>
+                    <input asp-for="DeadlineDateTime" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="DeadlineDateTime" class="text-danger"></span>
+                    <small class="form-text text-muted">Время, до которого нужно завершить задачу</small>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="AssignedToUserId" class="form-label"></label>
+                    <select asp-for="AssignedToUserId" class="form-select">
+                        <option value="">-- Не назначено (для всех) --</option>
+                        @foreach (var user in Model.AvailableUsers)
+                        {
+                            <option value="@user.Id">@user.UserName</option>
+                        }
+                    </select>
+                    <span asp-validation-for="AssignedToUserId" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input asp-for="IsRecurring" class="form-check-input" type="checkbox" id="isRecurringCheck" />
+                    <label asp-for="IsRecurring" class="form-check-label" for="isRecurringCheck"></label>
+                </div>
+
+                <div class="mb-3" id="recurringDaySection" style="display: none;">
+                    <label asp-for="RecurringDayOfWeek" class="form-label"></label>
+                    <select asp-for="RecurringDayOfWeek" class="form-select">
+                        <option value="">-- Выберите день недели --</option>
+                        <option value="1">Понедельник</option>
+                        <option value="2">Вторник</option>
+                        <option value="3">Среда</option>
+                        <option value="4">Четверг</option>
+                        <option value="5">Пятница</option>
+                        <option value="6">Суббота</option>
+                        <option value="0">Воскресенье</option>
+                    </select>
+                    <span asp-validation-for="RecurringDayOfWeek" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.getElementById('isRecurringCheck').addEventListener('change', function() {
+            document.getElementById('recurringDaySection').style.display = this.checked ? 'block' : 'none';
+        });
+    </script>
+}

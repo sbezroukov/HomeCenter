@@ -14,6 +14,11 @@ public class ApplicationUser
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    /// <summary>
+    /// Telegram Chat ID для отправки уведомлений
+    /// </summary>
+    public long? TelegramChatId { get; set; }
+
     public ICollection<TestAttempt> Attempts { get; set; } = new List<TestAttempt>();
 }
 

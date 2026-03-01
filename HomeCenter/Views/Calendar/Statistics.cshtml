@@ -1,0 +1,206 @@
+@model Dictionary<string, object>
+@{
+    ViewData["Title"] = "Статистика выполнения";
+    var fromDate = ViewBag.FromDate as DateTime?;
+    var toDate = ViewBag.ToDate as DateTime?;
+    var isAdmin = ViewBag.IsAdmin as bool? ?? false;
+}
+
+<div class="container-fluid">
+    <h2 class="mb-4">📊 Статистика выполнения заданий</h2>
+
+    <!-- Фильтр по датам -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Statistics" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">С даты:</label>
+                    <input type="date" name="from" class="form-control" value="@fromDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">По дату:</label>
+                    <input type="date" name="to" class="form-control" value="@toDate?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Применить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Общая статистика -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">@Model["TotalTasks"]</h3>
+                    <p class="mb-0">Всего заданий</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">@Model["CompletedTasks"]</h3>
+                    <p class="mb-0">✓ Выполнено</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-danger">@Model["NotCompletedTasks"]</h3>
+                    <p class="mb-0">✗ Не выполнено</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">@Model["PartiallyCompletedTasks"]</h3>
+                    <p class="mb-0">◐ Частично</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">@Model["OnTimeTasks"]</h3>
+                    <p class="mb-0">⏰ В срок</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-danger">@Model["LateTasks"]</h3>
+                    <p class="mb-0">⚠️ С опозданием</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">@Model["ApprovedTasks"]</h3>
+                    <p class="mb-0">✓ Подтверждено</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">@Model["PendingApprovalTasks"]</h3>
+                    <p class="mb-0">⏳ Ожидает подтверждения</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика по типам деятельности -->
+    @if (Model.ContainsKey("ByActivityType"))
+    {
+        var byActivityType = Model["ByActivityType"] as IEnumerable<dynamic>;
+        if (byActivityType != null && byActivityType.Any())
+        {
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">По типам деятельности</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Тип деятельности</th>
+                                    <th>Всего</th>
+                                    <th>Выполнено</th>
+                                    <th>% выполнения</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in byActivityType)
+                                {
+                                    var completionRate = item.Total > 0 ? (double)item.Completed / item.Total * 100 : 0;
+                                    <tr>
+                                        <td><strong>@item.ActivityType</strong></td>
+                                        <td>@item.Total</td>
+                                        <td>@item.Completed</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar @(completionRate >= 80 ? "bg-success" : completionRate >= 50 ? "bg-warning" : "bg-danger")" 
+                                                     role="progressbar" 
+                                                     style="width: @completionRate%"
+                                                     aria-valuenow="@completionRate" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    @completionRate.ToString("F1")%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <!-- Статистика по пользователям (только для админа) -->
+    @if (isAdmin && Model.ContainsKey("ByUser"))
+    {
+        var byUser = Model["ByUser"] as IEnumerable<dynamic>;
+        if (byUser != null && byUser.Any())
+        {
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">По пользователям</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Пользователь</th>
+                                    <th>Всего заданий</th>
+                                    <th>Выполнено</th>
+                                    <th>% выполнения</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in byUser)
+                                {
+                                    <tr>
+                                        <td><strong>@item.UserName</strong></td>
+                                        <td>@item.Total</td>
+                                        <td>@item.Completed</td>
+                                        <td>
+                                            <div class="progress">
+                                                <div class="progress-bar @(item.CompletionRate >= 80 ? "bg-success" : item.CompletionRate >= 50 ? "bg-warning" : "bg-danger")" 
+                                                     role="progressbar" 
+                                                     style="width: @item.CompletionRate%"
+                                                     aria-valuenow="@item.CompletionRate" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    @((double)item.CompletionRate).ToString("F1")%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">← Вернуться к календарю</a>
+    </div>
+</div>

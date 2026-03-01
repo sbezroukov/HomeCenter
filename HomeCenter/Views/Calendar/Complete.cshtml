@@ -1,0 +1,49 @@
+@model CompleteActivityViewModel
+@{
+    ViewData["Title"] = "Отметить выполнение";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="mb-4">Отметить выполнение задачи</h2>
+
+            <div class="alert alert-info">
+                <strong>Задача:</strong> @Model.ActivityTitle
+            </div>
+
+            <form asp-action="Complete" method="post">
+                <input type="hidden" asp-for="ActivityId" />
+                <input type="hidden" asp-for="ActivityTitle" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label"></label>
+                    <select asp-for="Status" class="form-select" required>
+                        <option value="1">✓ Выполнена</option>
+                        <option value="2">✗ Не выполнена</option>
+                        <option value="3">◐ Частично выполнена</option>
+                        <option value="4">⊘ Отменена</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Comment" class="form-label"></label>
+                    <textarea asp-for="Comment" class="form-control" rows="4" 
+                              placeholder="Укажите причину невыполнения или дополнительные комментарии"></textarea>
+                    <span asp-validation-for="Comment" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
