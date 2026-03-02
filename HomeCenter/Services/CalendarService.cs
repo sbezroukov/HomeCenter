@@ -87,7 +87,8 @@ public partial class CalendarService : ICalendarService
             query = query.Where(sa => sa.AssignedToUserId == userId || sa.AssignedToUserId == null);
         }
 
-        return await query.OrderBy(sa => sa.StartDate).ThenBy(sa => sa.StartTime).ToListAsync();
+        var list = await query.ToListAsync();
+        return list.OrderBy(sa => sa.StartDate).ThenBy(sa => sa.StartTime).ToList();
     }
 
     public async Task<List<ScheduledActivity>> GetActivitiesForDayAsync(DateTime date, int? userId = null)
@@ -106,7 +107,8 @@ public partial class CalendarService : ICalendarService
             query = query.Where(sa => sa.AssignedToUserId == userId || sa.AssignedToUserId == null);
         }
 
-        return await query.OrderBy(sa => sa.StartTime).ToListAsync();
+        var list = await query.ToListAsync();
+        return list.OrderBy(sa => sa.StartTime).ToList();
     }
 
     public async Task<ScheduledActivity?> GetActivityByIdAsync(int id)

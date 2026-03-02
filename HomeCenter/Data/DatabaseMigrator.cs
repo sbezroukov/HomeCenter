@@ -113,7 +113,7 @@ public static class DatabaseMigrator
         // Таблица фотографий активностей
         db.Database.ExecuteSqlRaw(@"
             CREATE TABLE IF NOT EXISTS ActivityPhotos (
-                Id INTEGER NOT NULL PRIMARY AUTOINCREMENT,
+                Id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 ScheduledActivityId INTEGER NOT NULL,
                 UploadedByUserId INTEGER NOT NULL,
                 FilePath TEXT NOT NULL,
