@@ -21,6 +21,7 @@ dotnet test --filter "Category!=Integration"
 **Требования:** файл `HomeCenter/appsettings.Development.json` с ключом `Qwen:ApiKey`. Скопируйте `appsettings.Development.json.example` в `appsettings.Development.json` и укажите свой API-ключ.
 
 **Запуск:**
+
 ```bash
 dotnet test --filter "Category=Integration"
 ```
@@ -32,3 +33,4 @@ dotnet test --filter "Category=Integration"
 ```bash
 dotnet test --filter "FullyQualifiedName~OpenAnswerGradingService"
 ```
+
